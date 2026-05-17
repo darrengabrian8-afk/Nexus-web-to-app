@@ -1,0 +1,4235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus APK Builder - Futuristic APK Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-primary: #0a0a1a;
+--bg-secondary: #12122a;
+--bg-card: rgba(20, 20, 50, 0.6);
+--purple-neon: #a855f7;
+--purple-light: #c084fc;
+--purple-dark: #7c3aed;
+--blue-neon: #3b82f6;
+--blue-electric: #60a5fa;
+--cyan-neon: #22d3ee;
+--green-neon: #22c55e;
+--red-neon: #ef4444;
+--orange-neon: #f97316;
+--yellow-neon: #eab308;
+--pink-neon: #ec4899;
+--text-primary: #ffffff;
+--text-secondary: #a0a0c0;
+--text-muted: #6b6b8a;
+--glass-bg: rgba(20, 20, 50, 0.4);
+--glass-border: rgba(168, 85, 247, 0.2);
+--glass-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
+--border-radius: 16px;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+font-family: 'Poppins', sans-serif;
+background: var(--bg-primary);
+color: var(--text-primary);
+overflow-x: hidden;
+min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--purple-neon); border-radius: 3px; }
+
+/* Loading Screen */
+#loading-screen {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: var(--bg-primary);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 99999;
+transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#loading-screen.hidden {
+opacity: 0;
+visibility: hidden;
+}
+
+#loading-screen .logo-loading {
+font-family: 'Sora', sans-serif;
+font-size: 2.5rem;
+font-weight: 800;
+background: linear-gradient(135deg, var(--purple-neon), var(--cyan-neon), var(--blue-electric));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+animation: neonPulse 2s ease-in-out infinite;
+margin-bottom: 30px;
+}
+
+#loading-screen .loading-text {
+color: var(--text-secondary);
+font-size: 0.9rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+margin-bottom: 30px;
+animation: fadeInOut 2s ease-in-out infinite;
+}
+
+.loading-bar-container {
+width: 300px;
+height: 4px;
+background: rgba(168, 85, 247, 0.1);
+border-radius: 2px;
+overflow: hidden;
+position: relative;
+}
+
+.loading-bar {
+height: 100%;
+width: 0%;
+background: linear-gradient(90deg, var(--purple-neon), var(--cyan-neon), var(--blue-electric));
+border-radius: 2px;
+transition: width 0.3s ease;
+box-shadow: 0 0 20px var(--purple-neon);
+}
+
+.loading-percentage {
+color: var(--purple-light);
+font-family: 'JetBrains Mono', monospace;
+font-size: 0.8rem;
+margin-top: 15px;
+}
+
+/* Particles */
+#particles-container {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+pointer-events: none;
+z-index: 0;
+overflow: hidden;
+}
+
+.particle {
+position: absolute;
+width: 3px;
+height: 3px;
+background: var(--purple-neon);
+border-radius: 50%;
+opacity: 0.3;
+animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+10% { opacity: 0.3; }
+90% { opacity: 0.3; }
+100% { transform: translateY(-100px) translateX(100px) rotate(720deg); opacity: 0; }
+}
+
+/* Grid Background */
+.cyber-grid {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background-image:
+linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+background-size: 50px 50px;
+z-index: 0;
+pointer-events: none;
+animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+0% { background-position: 0 0; }
+100% { background-position: 50px 50px; }
+}
+
+/* Floating Orbs */
+.floating-orb {
+position: fixed;
+border-radius: 50%;
+filter: blur(80px);
+opacity: 0.15;
+pointer-events: none;
+z-index: 0;
+animation: orbFloat 15s ease-in-out infinite;
+}
+
+.orb-1 {
+width: 400px; height: 400px;
+background: var(--purple-neon);
+top: -100px; right: -100px;
+animation-delay: 0s;
+}
+
+.orb-2 {
+width: 300px; height: 300px;
+background: var(--blue-electric);
+bottom: -100px; left: -100px;
+animation-delay: -5s;
+}
+
+.orb-3 {
+width: 250px; height: 250px;
+background: var(--cyan-neon);
+top: 50%; left: 50%;
+animation-delay: -10s;
+}
+
+@keyframes orbFloat {
+0%, 100% { transform: translate(0, 0) scale(1); }
+25% { transform: translate(50px, -30px) scale(1.1); }
+50% { transform: translate(-30px, 50px) scale(0.9); }
+75% { transform: translate(-50px, -20px) scale(1.05); }
+}
+
+/* Cursor Trail */
+.cursor-trail {
+position: fixed;
+width: 20px; height: 20px;
+border-radius: 50%;
+pointer-events: none;
+z-index: 99998;
+background: radial-gradient(circle, rgba(168, 85, 247, 0.4), transparent);
+transform: translate(-50%, -50%);
+transition: all 0.1s ease;
+}
+
+/* Main App */
+#app {
+position: relative;
+z-index: 1;
+display: none;
+}
+
+#app.visible { display: block; }
+
+/* Header */
+.header {
+position: fixed;
+top: 0; left: 0; right: 0;
+height: 70px;
+background: rgba(10, 10, 26, 0.8);
+backdrop-filter: blur(20px);
+border-bottom: 1px solid var(--glass-border);
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 24px;
+z-index: 1000;
+}
+
+.header-logo {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.header-logo-icon {
+width: 40px; height: 40px;
+background: linear-gradient(135deg, var(--purple-neon), var(--blue-electric));
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+.header-logo-text {
+font-family: 'Sora', sans-serif;
+font-weight: 700;
+font-size: 1.2rem;
+background: linear-gradient(135deg, var(--purple-light), var(--cyan-neon));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.header-right {
+display: flex;
+align-items: center;
+gap: 16px;
+}
+
+.header-status {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 6px 14px;
+background: rgba(34, 197, 94, 0.1);
+border: 1px solid rgba(34, 197, 94, 0.2);
+border-radius: 20px;
+font-size: 0.75rem;
+color: var(--green-neon);
+}
+
+.header-status .dot {
+width: 8px; height: 8px;
+background: var(--green-neon);
+border-radius: 50%;
+animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+}
+
+.header-menu-btn {
+width: 40px; height: 40px;
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+color: var(--text-primary);
+font-size: 1.2rem;
+transition: var(--transition);
+}
+
+.header-menu-btn:hover {
+background: rgba(168, 85, 247, 0.2);
+border-color: var(--purple-neon);
+box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+/* Sidebar */
+.sidebar {
+position: fixed;
+top: 0; left: -320px;
+width: 300px;
+height: 100%;
+background: rgba(10, 10, 26, 0.95);
+backdrop-filter: blur(20px);
+border-right: 1px solid var(--glass-border);
+z-index: 2000;
+transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+overflow-y: auto;
+padding: 20px;
+}
+
+.sidebar.open { left: 0; }
+
+.sidebar-overlay {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0, 0, 0, 0.6);
+z-index: 1999;
+opacity: 0;
+visibility: hidden;
+transition: var(--transition);
+}
+
+.sidebar-overlay.visible {
+opacity: 1;
+visibility: visible;
+}
+
+.sidebar-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 30px;
+padding-bottom: 20px;
+border-bottom: 1px solid var(--glass-border);
+}
+
+.sidebar-close {
+width: 36px; height: 36px;
+background: rgba(239, 68, 68, 0.1);
+border: 1px solid rgba(239, 68, 68, 0.2);
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+color: var(--red-neon);
+font-size: 1rem;
+transition: var(--transition);
+}
+
+.sidebar-close:hover {
+background: rgba(239, 68, 68, 0.2);
+}
+
+.sidebar-nav {
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.sidebar-item {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 12px 16px;
+border-radius: 12px;
+cursor: pointer;
+transition: var(--transition);
+color: var(--text-secondary);
+font-size: 0.9rem;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+background: rgba(168, 85, 247, 0.1);
+color: var(--purple-light);
+border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.sidebar-item .icon {
+font-size: 1.1rem;
+width: 24px;
+text-align: center;
+}
+
+.sidebar-divider {
+height: 1px;
+background: var(--glass-border);
+margin: 15px 0;
+}
+
+.sidebar-section-title {
+font-size: 0.7rem;
+text-transform: uppercase;
+letter-spacing: 2px;
+color: var(--text-muted);
+padding: 8px 16px;
+}
+
+/* Main Content */
+.main-content {
+padding-top: 90px;
+padding-bottom: 40px;
+min-height: 100vh;
+}
+
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 20px;
+}
+
+/* Section Title */
+.section-title {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 20px;
+}
+
+.section-title .icon {
+width: 40px; height: 40px;
+background: linear-gradient(135deg, var(--purple-neon), var(--blue-electric));
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.1rem;
+box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.section-title h2 {
+font-family: 'Sora', sans-serif;
+font-size: 1.3rem;
+font-weight: 700;
+}
+
+.section-title .badge {
+padding: 4px 10px;
+background: rgba(168, 85, 247, 0.1);
+border: 1px solid rgba(168, 85, 247, 0.3);
+border-radius: 20px;
+font-size: 0.65rem;
+color: var(--purple-light);
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+/* Cards */
+.card {
+background: var(--bg-card);
+backdrop-filter: blur(20px);
+border: 1px solid var(--glass-border);
+border-radius: var(--border-radius);
+padding: 24px;
+margin-bottom: 20px;
+transition: var(--transition);
+position: relative;
+overflow: hidden;
+}
+
+.card::before {
+content: '';
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 2px;
+background: linear-gradient(90deg, transparent, var(--purple-neon), var(--cyan-neon), transparent);
+opacity: 0;
+transition: opacity 0.3s ease;
+}
+
+.card:hover::before { opacity: 1; }
+
+.card:hover {
+border-color: rgba(168, 85, 247, 0.4);
+box-shadow: var(--glass-shadow);
+transform: translateY(-2px);
+}
+
+.card-title {
+display: flex;
+align-items: center;
+gap: 10px;
+font-size: 1rem;
+font-weight: 600;
+margin-bottom: 16px;
+color: var(--text-primary);
+}
+
+.card-title .emoji {
+font-size: 1.2rem;
+}
+
+/* Form Elements */
+.form-group {
+margin-bottom: 16px;
+}
+
+.form-label {
+display: block;
+font-size: 0.8rem;
+font-weight: 500;
+color: var(--text-secondary);
+margin-bottom: 8px;
+letter-spacing: 0.5px;
+}
+
+.form-input {
+width: 100%;
+padding: 12px 16px;
+background: rgba(10, 10, 26, 0.6);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+color: var(--text-primary);
+font-family: 'Poppins', sans-serif;
+font-size: 0.9rem;
+transition: var(--transition);
+outline: none;
+}
+
+.form-input:focus {
+border-color: var(--purple-neon);
+box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1), 0 0 15px rgba(168, 85, 247, 0.1);
+}
+
+.form-input::placeholder {
+color: var(--text-muted);
+}
+
+.form-select {
+width: 100%;
+padding: 12px 16px;
+background: rgba(10, 10, 26, 0.6);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+color: var(--text-primary);
+font-family: 'Poppins', sans-serif;
+font-size: 0.9rem;
+transition: var(--transition);
+outline: none;
+cursor: pointer;
+appearance: none;
+background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+background-repeat: no-repeat;
+background-position: right 16px center;
+}
+
+.form-select:focus {
+border-color: var(--purple-neon);
+box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+.form-select option {
+background: var(--bg-secondary);
+color: var(--text-primary);
+}
+
+textarea.form-input {
+resize: vertical;
+min-height: 80px;
+}
+
+/* Toggle Switch */
+.toggle-container {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px 0;
+border-bottom: 1px solid rgba(168, 85, 247, 0.05);
+}
+
+.toggle-container:last-child { border-bottom: none; }
+
+.toggle-label {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 0.85rem;
+color: var(--text-secondary);
+}
+
+.toggle-switch {
+position: relative;
+width: 44px;
+height: 24px;
+cursor: pointer;
+}
+
+.toggle-switch input {
+opacity: 0;
+width: 0;
+height: 0;
+}
+
+.toggle-slider {
+position: absolute;
+top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(100, 100, 140, 0.3);
+border-radius: 12px;
+transition: var(--transition);
+}
+
+.toggle-slider::before {
+content: '';
+position: absolute;
+width: 18px; height: 18px;
+left: 3px; bottom: 3px;
+background: var(--text-secondary);
+border-radius: 50%;
+transition: var(--transition);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+background: linear-gradient(135deg, var(--purple-neon), var(--blue-electric));
+box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+transform: translateX(20px);
+background: white;
+}
+
+/* Buttons */
+.btn {
+padding: 12px 24px;
+border: none;
+border-radius: 12px;
+font-family: 'Poppins', sans-serif;
+font-size: 0.9rem;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+position: relative;
+overflow: hidden;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, var(--purple-neon), var(--purple-dark));
+color: white;
+box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
+}
+
+.btn-primary:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
+}
+
+.btn-primary::after {
+content: '';
+position: absolute;
+top: -50%; left: -50%;
+width: 200%; height: 200%;
+background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+transform: rotate(45deg) translateX(-100%);
+transition: transform 0.6s ease;
+}
+
+.btn-primary:hover::after {
+transform: rotate(45deg) translateX(100%);
+}
+
+.btn-secondary {
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+background: rgba(168, 85, 247, 0.1);
+border-color: var(--purple-neon);
+}
+
+.btn-success {
+background: linear-gradient(135deg, var(--green-neon), #16a34a);
+color: white;
+box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+}
+
+.btn-success:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 30px rgba(34, 197, 94, 0.5);
+}
+
+.btn-danger {
+background: linear-gradient(135deg, var(--red-neon), #dc2626);
+color: white;
+}
+
+.btn-cyan {
+background: linear-gradient(135deg, var(--cyan-neon), var(--blue-electric));
+color: white;
+box-shadow: 0 4px 20px rgba(34, 211, 238, 0.3);
+}
+
+.btn-large {
+padding: 16px 32px;
+font-size: 1rem;
+border-radius: 14px;
+}
+
+.btn-full { width: 100%; }
+
+.btn-icon {
+width: 40px; height: 40px;
+padding: 0;
+border-radius: 10px;
+}
+
+/* Upload Area */
+.upload-area {
+border: 2px dashed var(--glass-border);
+border-radius: 14px;
+padding: 40px 20px;
+text-align: center;
+cursor: pointer;
+transition: var(--transition);
+background: rgba(10, 10, 26, 0.3);
+}
+
+.upload-area:hover {
+border-color: var(--purple-neon);
+background: rgba(168, 85, 247, 0.05);
+box-shadow: 0 0 20px rgba(168, 85, 247, 0.1);
+}
+
+.upload-area.dragging {
+border-color: var(--cyan-neon);
+background: rgba(34, 211, 238, 0.05);
+}
+
+.upload-area .upload-icon {
+font-size: 2.5rem;
+margin-bottom: 12px;
+}
+
+.upload-area .upload-text {
+color: var(--text-secondary);
+font-size: 0.85rem;
+}
+
+.upload-area .upload-text span {
+color: var(--purple-light);
+font-weight: 600;
+}
+
+/* Preview Container */
+.phone-preview {
+width: 280px;
+height: 500px;
+background: var(--bg-secondary);
+border: 3px solid var(--glass-border);
+border-radius: 30px;
+margin: 0 auto;
+overflow: hidden;
+position: relative;
+box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(168, 85, 247, 0.1);
+}
+
+.phone-notch {
+width: 120px;
+height: 25px;
+background: var(--bg-primary);
+border-radius: 0 0 15px 15px;
+margin: 0 auto;
+position: relative;
+z-index: 2;
+}
+
+.phone-screen {
+width: 100%;
+height: calc(100% - 25px);
+background: #1a1a2e;
+overflow: hidden;
+}
+
+.phone-screen iframe {
+width: 100%;
+height: 100%;
+border: none;
+}
+
+/* Radio Group */
+.radio-group {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 8px;
+}
+
+.radio-option {
+position: relative;
+}
+
+.radio-option input {
+position: absolute;
+opacity: 0;
+pointer-events: none;
+}
+
+.radio-option label {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+padding: 10px 14px;
+background: rgba(10, 10, 26, 0.6);
+border: 1px solid var(--glass-border);
+border-radius: 10px;
+cursor: pointer;
+font-size: 0.8rem;
+color: var(--text-secondary);
+transition: var(--transition);
+text-align: center;
+}
+
+.radio-option input:checked + label {
+background: rgba(168, 85, 247, 0.15);
+border-color: var(--purple-neon);
+color: var(--purple-light);
+box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.radio-option label:hover {
+border-color: rgba(168, 85, 247, 0.4);
+}
+
+/* Tags / Chips */
+.chip {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+padding: 6px 12px;
+background: rgba(168, 85, 247, 0.1);
+border: 1px solid rgba(168, 85, 247, 0.2);
+border-radius: 20px;
+font-size: 0.75rem;
+color: var(--purple-light);
+}
+
+/* Score Meter */
+.score-meter {
+width: 100%;
+height: 8px;
+background: rgba(100, 100, 140, 0.2);
+border-radius: 4px;
+overflow: hidden;
+margin-top: 8px;
+}
+
+.score-fill {
+height: 100%;
+border-radius: 4px;
+transition: width 1s ease;
+}
+
+.score-fill.green { background: linear-gradient(90deg, var(--green-neon), #4ade80); }
+.score-fill.blue { background: linear-gradient(90deg, var(--blue-electric), var(--cyan-neon)); }
+.score-fill.purple { background: linear-gradient(90deg, var(--purple-neon), var(--pink-neon)); }
+.score-fill.orange { background: linear-gradient(90deg, var(--orange-neon), var(--yellow-neon)); }
+
+/* Stats Grid */
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+gap: 12px;
+}
+
+.stat-item {
+text-align: center;
+padding: 16px 12px;
+background: rgba(10, 10, 26, 0.4);
+border-radius: 12px;
+border: 1px solid rgba(168, 85, 247, 0.1);
+}
+
+.stat-value {
+font-family: 'Sora', sans-serif;
+font-size: 1.4rem;
+font-weight: 700;
+background: linear-gradient(135deg, var(--purple-light), var(--cyan-neon));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+font-size: 0.7rem;
+color: var(--text-muted);
+margin-top: 4px;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+/* Grid Layouts */
+.grid-2 {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 16px;
+}
+
+.grid-3 {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 12px;
+}
+
+.grid-4 {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 12px;
+}
+
+/* Server Cards */
+.server-card {
+padding: 14px;
+background: rgba(10, 10, 26, 0.5);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+cursor: pointer;
+transition: var(--transition);
+text-align: center;
+}
+
+.server-card:hover, .server-card.active {
+border-color: var(--purple-neon);
+background: rgba(168, 85, 247, 0.1);
+box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.server-card .flag { font-size: 1.5rem; margin-bottom: 6px; }
+.server-card .name { font-size: 0.8rem; font-weight: 600; }
+.server-card .ping {
+font-size: 0.7rem;
+color: var(--green-neon);
+font-family: 'JetBrains Mono', monospace;
+margin-top: 4px;
+}
+
+.server-card .status-dot {
+display: inline-block;
+width: 6px; height: 6px;
+background: var(--green-neon);
+border-radius: 50%;
+margin-right: 4px;
+animation: dotPulse 2s ease-in-out infinite;
+}
+
+/* Build Console */
+.build-console {
+background: rgba(5, 5, 15, 0.8);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+padding: 16px;
+font-family: 'JetBrains Mono', monospace;
+font-size: 0.75rem;
+max-height: 300px;
+overflow-y: auto;
+display: none;
+}
+
+.build-console.visible { display: block; }
+
+.console-line {
+padding: 3px 0;
+opacity: 0;
+animation: consoleFadeIn 0.3s ease forwards;
+}
+
+.console-line .tag {
+font-weight: 600;
+margin-right: 8px;
+}
+
+.console-line .tag.system { color: var(--cyan-neon); }
+.console-line .tag.webview { color: var(--blue-electric); }
+.console-line .tag.assets { color: var(--yellow-neon); }
+.console-line .tag.build { color: var(--purple-light); }
+.console-line .tag.sign { color: var(--orange-neon); }
+.console-line .tag.success { color: var(--green-neon); }
+.console-line .tag.error { color: var(--red-neon); }
+
+.console-line .msg { color: var(--text-secondary); }
+
+@keyframes consoleFadeIn {
+from { opacity: 0; transform: translateX(-10px); }
+to { opacity: 1; transform: translateX(0); }
+}
+
+/* Build Progress */
+.build-progress-container {
+margin: 20px 0;
+display: none;
+}
+
+.build-progress-container.visible { display: block; }
+
+.build-progress-bar {
+width: 100%;
+height: 6px;
+background: rgba(100, 100, 140, 0.2);
+border-radius: 3px;
+overflow: hidden;
+}
+
+.build-progress-fill {
+height: 100%;
+width: 0%;
+background: linear-gradient(90deg, var(--purple-neon), var(--cyan-neon));
+border-radius: 3px;
+transition: width 0.5s ease;
+box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.build-progress-text {
+display: flex;
+justify-content: space-between;
+margin-top: 8px;
+font-size: 0.8rem;
+color: var(--text-secondary);
+}
+
+/* Download Card */
+.download-card {
+display: none;
+text-align: center;
+padding: 40px 24px;
+}
+
+.download-card.visible { display: block; }
+
+.download-icon {
+font-size: 4rem;
+margin-bottom: 16px;
+animation: bounceIn 0.6s ease;
+}
+
+.download-title {
+font-family: 'Sora', sans-serif;
+font-size: 1.5rem;
+font-weight: 700;
+background: linear-gradient(135deg, var(--green-neon), var(--cyan-neon));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+margin-bottom: 8px;
+}
+
+.download-info {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 12px;
+margin: 20px 0;
+}
+
+.download-info-item {
+padding: 12px;
+background: rgba(10, 10, 26, 0.5);
+border-radius: 10px;
+border: 1px solid var(--glass-border);
+}
+
+.download-info-item .label {
+font-size: 0.7rem;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.download-info-item .value {
+font-size: 0.95rem;
+font-weight: 600;
+color: var(--text-primary);
+margin-top: 4px;
+}
+
+.download-buttons {
+display: flex;
+flex-direction: column;
+gap: 10px;
+margin-top: 20px;
+}
+
+/* Template Cards */
+.template-card {
+background: rgba(10, 10, 26, 0.5);
+border: 1px solid var(--glass-border);
+border-radius: 14px;
+overflow: hidden;
+cursor: pointer;
+transition: var(--transition);
+}
+
+.template-card:hover {
+border-color: var(--purple-neon);
+transform: translateY(-4px);
+box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+}
+
+.template-preview {
+height: 120px;
+background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(59, 130, 246, 0.2));
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2.5rem;
+}
+
+.template-info {
+padding: 14px;
+}
+
+.template-name {
+font-size: 0.9rem;
+font-weight: 600;
+margin-bottom: 4px;
+}
+
+.template-category {
+font-size: 0.7rem;
+color: var(--text-muted);
+}
+
+/* Plugin Card */
+.plugin-card {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px;
+background: rgba(10, 10, 26, 0.4);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+margin-bottom: 8px;
+transition: var(--transition);
+}
+
+.plugin-card:hover {
+border-color: rgba(168, 85, 247, 0.3);
+}
+
+.plugin-info {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.plugin-icon {
+width: 36px; height: 36px;
+background: rgba(168, 85, 247, 0.1);
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1rem;
+}
+
+.plugin-name {
+font-size: 0.85rem;
+font-weight: 600;
+}
+
+.plugin-desc {
+font-size: 0.7rem;
+color: var(--text-muted);
+}
+
+.plugin-install-btn {
+padding: 6px 14px;
+background: rgba(168, 85, 247, 0.15);
+border: 1px solid rgba(168, 85, 247, 0.3);
+border-radius: 8px;
+color: var(--purple-light);
+font-size: 0.75rem;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+font-family: 'Poppins', sans-serif;
+}
+
+.plugin-install-btn:hover {
+background: rgba(168, 85, 247, 0.3);
+}
+
+.plugin-install-btn.installed {
+background: rgba(34, 197, 94, 0.15);
+border-color: rgba(34, 197, 94, 0.3);
+color: var(--green-neon);
+}
+
+/* Build History */
+.history-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px;
+background: rgba(10, 10, 26, 0.3);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+margin-bottom: 8px;
+}
+
+.history-item .info {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.history-item .status {
+width: 8px; height: 8px;
+border-radius: 50%;
+}
+
+.history-item .status.success { background: var(--green-neon); }
+.history-item .status.failed { background: var(--red-neon); }
+.history-item .status.building { background: var(--yellow-neon); animation: dotPulse 1s infinite; }
+
+.history-item .name {
+font-size: 0.85rem;
+font-weight: 600;
+}
+
+.history-item .meta {
+font-size: 0.7rem;
+color: var(--text-muted);
+}
+
+.history-item .actions {
+display: flex;
+gap: 6px;
+}
+
+/* Image Preview */
+.image-preview {
+width: 100%;
+max-width: 120px;
+height: 120px;
+background: rgba(10, 10, 26, 0.5);
+border: 2px dashed var(--glass-border);
+border-radius: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+cursor: pointer;
+transition: var(--transition);
+}
+
+.image-preview:hover {
+border-color: var(--purple-neon);
+}
+
+.image-preview img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.image-preview .placeholder {
+text-align: center;
+color: var(--text-muted);
+font-size: 0.7rem;
+}
+
+.image-preview .placeholder .icon {
+font-size: 1.5rem;
+margin-bottom: 4px;
+}
+
+/* Color Picker */
+.color-picker-group {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.color-preview {
+width: 36px; height: 36px;
+border-radius: 10px;
+border: 2px solid var(--glass-border);
+cursor: pointer;
+}
+
+.color-input {
+opacity: 0;
+position: absolute;
+width: 0;
+height: 0;
+}
+
+/* Tab System */
+.tab-header {
+display: flex;
+gap: 4px;
+margin-bottom: 20px;
+overflow-x: auto;
+padding-bottom: 4px;
+}
+
+.tab-btn {
+padding: 10px 18px;
+background: transparent;
+border: 1px solid transparent;
+border-radius: 10px;
+color: var(--text-secondary);
+font-family: 'Poppins', sans-serif;
+font-size: 0.8rem;
+font-weight: 500;
+cursor: pointer;
+transition: var(--transition);
+white-space: nowrap;
+}
+
+.tab-btn:hover {
+background: rgba(168, 85, 247, 0.05);
+color: var(--purple-light);
+}
+
+.tab-btn.active {
+background: rgba(168, 85, 247, 0.15);
+border-color: rgba(168, 85, 247, 0.3);
+color: var(--purple-light);
+}
+
+.tab-content {
+display: none;
+animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active { display: block; }
+
+/* Live Activity */
+.activity-feed {
+max-height: 200px;
+overflow-y: auto;
+}
+
+.activity-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 0;
+border-bottom: 1px solid rgba(168, 85, 247, 0.05);
+font-size: 0.8rem;
+}
+
+.activity-item .time {
+font-family: 'JetBrains Mono', monospace;
+font-size: 0.7rem;
+color: var(--text-muted);
+min-width: 50px;
+}
+
+.activity-item .activity-text {
+color: var(--text-secondary);
+}
+
+/* Notification Toast */
+.toast-container {
+position: fixed;
+top: 80px;
+right: 20px;
+z-index: 9999;
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+
+.toast {
+padding: 14px 20px;
+background: rgba(20, 20, 50, 0.95);
+backdrop-filter: blur(20px);
+border: 1px solid var(--glass-border);
+border-radius: 12px;
+display: flex;
+align-items: center;
+gap: 10px;
+font-size: 0.85rem;
+animation: toastSlideIn 0.3s ease;
+min-width: 280px;
+max-width: 400px;
+box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.toast.success { border-left: 3px solid var(--green-neon); }
+.toast.error { border-left: 3px solid var(--red-neon); }
+.toast.info { border-left: 3px solid var(--blue-electric); }
+.toast.warning { border-left: 3px solid var(--yellow-neon); }
+
+.toast.removing {
+animation: toastSlideOut 0.3s ease forwards;
+}
+
+@keyframes toastSlideIn {
+from { transform: translateX(100%); opacity: 0; }
+to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes toastSlideOut {
+from { transform: translateX(0); opacity: 1; }
+to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Countdown Timer */
+.countdown-display {
+display: flex;
+gap: 8px;
+justify-content: center;
+margin: 16px 0;
+}
+
+.countdown-unit {
+text-align: center;
+padding: 12px 16px;
+background: rgba(10, 10, 26, 0.6);
+border: 1px solid var(--glass-border);
+border-radius: 10px;
+min-width: 60px;
+}
+
+.countdown-unit .number {
+font-family: 'JetBrains Mono', monospace;
+font-size: 1.4rem;
+font-weight: 700;
+color: var(--cyan-neon);
+}
+
+.countdown-unit .label {
+font-size: 0.6rem;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-top: 4px;
+}
+
+/* Gamification */
+.xp-bar {
+width: 100%;
+height: 8px;
+background: rgba(100, 100, 140, 0.2);
+border-radius: 4px;
+overflow: hidden;
+}
+
+.xp-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--purple-neon), var(--pink-neon));
+border-radius: 4px;
+transition: width 1s ease;
+box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.badge-grid {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+.badge {
+width: 50px; height: 50px;
+background: rgba(168, 85, 247, 0.1);
+border: 1px solid rgba(168, 85, 247, 0.2);
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.3rem;
+transition: var(--transition);
+cursor: pointer;
+}
+
+.badge:hover {
+transform: scale(1.1);
+box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.badge.locked {
+opacity: 0.3;
+filter: grayscale(1);
+}
+
+/* Charts (CSS Only) */
+.mini-chart {
+display: flex;
+align-items: flex-end;
+gap: 4px;
+height: 60px;
+padding: 8px 0;
+}
+
+.mini-chart .bar {
+flex: 1;
+background: linear-gradient(to top, var(--purple-neon), var(--cyan-neon));
+border-radius: 3px 3px 0 0;
+min-width: 8px;
+transition: height 1s ease;
+opacity: 0.7;
+}
+
+.mini-chart .bar:hover {
+opacity: 1;
+box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+/* QR Code (placeholder) */
+.qr-placeholder {
+width: 150px; height: 150px;
+background: white;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto;
+padding: 10px;
+}
+
+.qr-placeholder .qr-grid {
+width: 100%; height: 100%;
+display: grid;
+grid-template-columns: repeat(8, 1fr);
+grid-template-rows: repeat(8, 1fr);
+gap: 1px;
+}
+
+.qr-placeholder .qr-cell {
+background: #000;
+border-radius: 1px;
+}
+
+.qr-placeholder .qr-cell.white { background: white; }
+
+/* Experimental Toggle */
+.experimental-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 12px 16px;
+background: rgba(10, 10, 26, 0.4);
+border: 1px solid rgba(168, 85, 247, 0.1);
+border-radius: 12px;
+margin-bottom: 8px;
+}
+
+.experimental-item .exp-info {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.experimental-item .exp-badge {
+padding: 2px 8px;
+background: rgba(249, 115, 22, 0.1);
+border: 1px solid rgba(249, 115, 22, 0.3);
+border-radius: 6px;
+font-size: 0.6rem;
+color: var(--orange-neon);
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+/* Sections */
+.section {
+margin-bottom: 30px;
+animation: sectionFadeIn 0.5s ease;
+}
+
+@keyframes sectionFadeIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Animations */
+@keyframes neonPulse {
+0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5)); }
+50% { opacity: 0.8; filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.8)); }
+}
+
+@keyframes fadeInOut {
+0%, 100% { opacity: 0.5; }
+50% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+
+@keyframes bounceIn {
+0% { transform: scale(0); }
+50% { transform: scale(1.1); }
+100% { transform: scale(1); }
+}
+
+@keyframes slideUp {
+from { transform: translateY(30px); opacity: 0; }
+to { transform: translateY(0); opacity: 1; }
+}
+
+/* Page Sections */
+.page-section {
+display: none;
+}
+
+.page-section.active {
+display: block;
+animation: fadeIn 0.4s ease;
+}
+
+/* Sound indicator */
+.sound-indicator {
+position: fixed;
+bottom: 20px;
+right: 20px;
+z-index: 1000;
+}
+
+.sound-btn {
+width: 44px; height: 44px;
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+color: var(--text-secondary);
+font-size: 1rem;
+transition: var(--transition);
+}
+
+.sound-btn:hover {
+border-color: var(--purple-neon);
+color: var(--purple-light);
+}
+
+/* Multi-language Selector */
+.lang-selector {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+}
+
+.lang-btn {
+padding: 6px 12px;
+background: rgba(10, 10, 26, 0.5);
+border: 1px solid var(--glass-border);
+border-radius: 8px;
+cursor: pointer;
+font-size: 0.75rem;
+color: var(--text-secondary);
+transition: var(--transition);
+font-family: 'Poppins', sans-serif;
+}
+
+.lang-btn:hover, .lang-btn.active {
+background: rgba(168, 85, 247, 0.15);
+border-color: var(--purple-neon);
+color: var(--purple-light);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+.grid-2, .grid-3, .grid-4 {
+grid-template-columns: 1fr;
+}
+
+.header-logo-text { font-size: 1rem; }
+.header-status { display: none; }
+
+.container { padding: 0 14px; }
+
+.card { padding: 18px; }
+
+#loading-screen .logo-loading { font-size: 1.8rem; }
+
+.download-info {
+grid-template-columns: 1fr;
+}
+
+.phone-preview {
+width: 240px;
+height: 420px;
+}
+
+.stats-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+
+.tab-header {
+gap: 2px;
+}
+
+.tab-btn {
+padding: 8px 12px;
+font-size: 0.75rem;
+}
+}
+
+@media (max-width: 480px) {
+.grid-2 { grid-template-columns: 1fr; }
+
+.radio-group {
+grid-template-columns: 1fr;
+}
+
+.countdown-display {
+flex-wrap: wrap;
+}
+
+.countdown-unit {
+min-width: 50px;
+padding: 8px 12px;
+}
+}
+
+/* Accessibility */
+.sr-only {
+position: absolute;
+width: 1px;
+height: 1px;
+padding: 0;
+margin: -1px;
+overflow: hidden;
+clip: rect(0, 0, 0, 0);
+border: 0;
+}
+
+/* Focus styles */
+*:focus-visible {
+outline: 2px solid var(--purple-neon);
+outline-offset: 2px;
+}
+
+/* Tooltip */
+.tooltip {
+position: relative;
+}
+
+.tooltip::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 100%;
+left: 50%;
+transform: translateX(-50%);
+padding: 6px 12px;
+background: rgba(10, 10, 26, 0.95);
+border: 1px solid var(--glass-border);
+border-radius: 8px;
+font-size: 0.7rem;
+color: var(--text-secondary);
+white-space: nowrap;
+opacity: 0;
+visibility: hidden;
+transition: var(--transition);
+pointer-events: none;
+z-index: 100;
+}
+
+.tooltip:hover::after {
+opacity: 1;
+visibility: visible;
+}
+
+/* File manager */
+.file-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 10px 14px;
+background: rgba(10, 10, 26, 0.3);
+border: 1px solid var(--glass-border);
+border-radius: 10px;
+margin-bottom: 6px;
+cursor: pointer;
+transition: var(--transition);
+}
+
+.file-item:hover {
+border-color: rgba(168, 85, 247, 0.3);
+background: rgba(168, 85, 247, 0.05);
+}
+
+.file-item .file-icon { font-size: 1.2rem; }
+.file-item .file-name { font-size: 0.85rem; flex: 1; }
+.file-item .file-size { font-size: 0.7rem; color: var(--text-muted); }
+
+/* Security Score Circle */
+.security-circle {
+width: 100px; height: 100px;
+border-radius: 50%;
+background: conic-gradient(var(--green-neon) 0% 85%, rgba(100,100,140,0.2) 85% 100%);
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto;
+position: relative;
+}
+
+.security-circle::before {
+content: '';
+width: 80px; height: 80px;
+background: var(--bg-secondary);
+border-radius: 50%;
+position: absolute;
+}
+
+.security-circle .score-text {
+position: relative;
+z-index: 1;
+font-family: 'Sora', sans-serif;
+font-size: 1.2rem;
+font-weight: 700;
+color: var(--green-neon);
+}
+
+/* Animated border */
+.animated-border {
+position: relative;
+}
+
+.animated-border::after {
+content: '';
+position: absolute;
+top: -1px; left: -1px;
+right: -1px; bottom: -1px;
+border-radius: inherit;
+background: linear-gradient(45deg, var(--purple-neon), var(--cyan-neon), var(--blue-electric), var(--purple-neon));
+background-size: 300% 300%;
+z-index: -1;
+animation: borderGlow 4s ease-in-out infinite;
+opacity: 0;
+transition: opacity 0.3s ease;
+}
+
+.animated-border:hover::after { opacity: 1; }
+
+@keyframes borderGlow {
+0%, 100% { background-position: 0% 50%; }
+50% { background-position: 100% 50%; }
+}
+
+/* Notification bell */
+.notification-bell {
+position: relative;
+cursor: pointer;
+}
+
+.notification-badge {
+position: absolute;
+top: -4px; right: -4px;
+width: 16px; height: 16px;
+background: var(--red-neon);
+border-radius: 50%;
+font-size: 0.55rem;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 700;
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor Trail -->
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<!-- Particles -->
+<div id="particles-container"></div>
+
+<!-- Cyber Grid -->
+<div class="cyber-grid"></div>
+
+<!-- Floating Orbs -->
+<div class="floating-orb orb-1"></div>
+<div class="floating-orb orb-2"></div>
+<div class="floating-orb orb-3"></div>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+<div class="logo-loading">⚡ Nexus APK Builder</div>
+<div class="loading-text">Initializing Build Engine…</div>
+<div class="loading-bar-container">
+<div class="loading-bar" id="loadingBar"></div>
+</div>
+<div class="loading-percentage" id="loadingPercent">0%</div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Sound Toggle -->
+<div class="sound-indicator">
+<div class="sound-btn" id="soundToggle" onclick="toggleSound()">🔊</div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<div style="display:flex;align-items:center;gap:10px;">
+<div class="header-logo-icon">⚡</div>
+<div class="header-logo-text">Nexus</div>
+</div>
+<div class="sidebar-close" onclick="closeSidebar()">✕</div>
+</div>
+
+<div class="sidebar-section-title">Main Menu</div>
+<div class="sidebar-nav">
+<div class="sidebar-item active" onclick="switchPage('builder')"><span class="icon">📦</span> APK Builder</div>
+<div class="sidebar-item" onclick="switchPage('templates')"><span class="icon">🛍️</span> Templates</div>
+<div class="sidebar-item" onclick="switchPage('plugins')"><span class="icon">🧩</span> Plugins</div>
+<div class="sidebar-item" onclick="switchPage('history')"><span class="icon">📋</span> Build History</div>
+<div class="sidebar-item" onclick="switchPage('analytics')"><span class="icon">📊</span> Analytics</div>
+</div>
+
+<div class="sidebar-divider"></div>
+<div class="sidebar-section-title">Tools</div>
+<div class="sidebar-nav">
+<div class="sidebar-item" onclick="switchPage('security')"><span class="icon">🛡️</span> Security</div>
+<div class="sidebar-item" onclick="switchPage('optimizer')"><span class="icon">⚡</span> Optimizer</div>
+<div class="sidebar-item" onclick="switchPage('cloner')"><span class="icon">📱</span> APK Cloner</div>
+<div class="sidebar-item" onclick="switchPage('scanner')"><span class="icon">🔍</span> APK Scanner</div>
+<div class="sidebar-item" onclick="switchPage('filemanager')"><span class="icon">📁</span> File Manager</div>
+</div>
+
+<div class="sidebar-divider"></div>
+<div class="sidebar-section-title">Advanced</div>
+<div class="sidebar-nav">
+<div class="sidebar-item" onclick="switchPage('api')"><span class="icon">📡</span> API Manager</div>
+<div class="sidebar-item" onclick="switchPage('experimental')"><span class="icon">🧪</span> Experimental</div>
+<div class="sidebar-item" onclick="switchPage('desktop')"><span class="icon">🖥️</span> Desktop Export</div>
+<div class="sidebar-item" onclick="switchPage('social')"><span class="icon">📲</span> Social Integration</div>
+<div class="sidebar-item" onclick="switchPage('theme')"><span class="icon">🎨</span> Theme Customizer</div>
+</div>
+
+<div class="sidebar-divider"></div>
+<div class="sidebar-section-title">System</div>
+<div class="sidebar-nav">
+<div class="sidebar-item" onclick="switchPage('gamification')"><span class="icon">🎮</span> Level & XP</div>
+<div class="sidebar-item" onclick="switchPage('language')"><span class="icon">🌎</span> Language</div>
+<div class="sidebar-item" onclick="switchPage('activity')"><span class="icon">🛰️</span> Live Activity</div>
+</div>
+
+<div style="margin-top:30px;padding:16px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);border-radius:12px;text-align:center;">
+<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px;">Version</div>
+<div style="font-size:0.9rem;font-weight:700;color:var(--purple-light);">v3.0.0 Quantum</div>
+<div style="font-size:0.65rem;color:var(--text-muted);margin-top:4px;">Free Forever • Unlimited</div>
+</div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+<!-- Header -->
+<header class="header">
+<div class="header-logo">
+<div class="header-menu-btn" onclick="openSidebar()">☰</div>
+<div class="header-logo-icon">⚡</div>
+<div class="header-logo-text">Nexus APK Builder</div>
+</div>
+<div class="header-right">
+<div class="header-status">
+<span class="dot"></span>
+<span>Server Online</span>
+</div>
+<div class="notification-bell" onclick="showToast('No new notifications', 'info')">
+🔔
+<div class="notification-badge">3</div>
+</div>
+</div>
+</header>
+
+<main class="main-content">
+<div class="container">
+
+<!-- ===== PAGE: APK BUILDER ===== -->
+<div class="page-section active" id="page-builder">
+
+<!-- Stats Overview -->
+<div class="section">
+<div class="stats-grid">
+<div class="stat-item">
+<div class="stat-value" id="totalBuilds">247</div>
+<div class="stat-label">Total Builds</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">∞</div>
+<div class="stat-label">Build Limit</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">1.2s</div>
+<div class="stat-label">Avg Speed</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">99%</div>
+<div class="stat-label">Success Rate</div>
+</div>
+</div>
+</div>
+
+<!-- AI Auto Generate -->
+<div class="section">
+<div class="card animated-border">
+<div class="card-title"><span class="emoji">🧠</span> AI Auto Generator <span class="chip">AI Powered</span></div>
+<p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:16px;">AI reads your website and automatically generates the best APK settings</p>
+<div class="form-group">
+<label class="form-label">Website URL</label>
+<input type="url" class="form-input" placeholder="https://your-website.com" id="aiUrl">
+</div>
+<button class="btn btn-cyan btn-full" onclick="aiGenerate()">⚡ Generate Smart APK</button>
+</div>
+</div>
+
+<!-- App Information -->
+<div class="section">
+<div class="section-title">
+<div class="icon">📄</div>
+<h2>App Information</h2>
+</div>
+<div class="card">
+<div class="form-group">
+<label class="form-label">App Name</label>
+<input type="text" class="form-input" placeholder="My Awesome App" id="appName" value="">
+</div>
+<div class="grid-2">
+<div class="form-group">
+<label class="form-label">Package Name</label>
+<input type="text" class="form-input" placeholder="com.nexus.app" id="packageName" value="com.nexus.app">
+</div>
+<div class="form-group">
+<label class="form-label">Version</label>
+<input type="text" class="form-input" placeholder="1.0.0" id="appVersion" value="1.0.0">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Build Number</label>
+<input type="number" class="form-input" placeholder="1" id="buildNumber" value="1">
+</div>
+</div>
+</div>
+
+<!-- Content Source -->
+<div class="section">
+<div class="section-title">
+<div class="icon">🌐</div>
+<h2>Content Source</h2>
+</div>
+<div class="card">
+<div class="tab-header">
+<button class="tab-btn active" onclick="switchTab(this, 'source-url')">🌐 Website URL</button>
+<button class="tab-btn" onclick="switchTab(this, 'source-html')">📄 Upload HTML</button>
+<button class="tab-btn" onclick="switchTab(this, 'source-zip')">📦 Upload ZIP</button>
+</div>
+
+<div class="tab-content active" id="tab-source-url">
+<div class="form-group">
+<label class="form-label">Website URL</label>
+<input type="url" class="form-input" placeholder="https://example.com" id="websiteUrl">
+</div>
+<button class="btn btn-secondary" onclick="previewUrl()" style="font-size:0.8rem;">👁 Preview</button>
+</div>
+
+<div class="tab-content" id="tab-source-html">
+<div class="upload-area" id="htmlUpload" onclick="document.getElementById('htmlFileInput').click()" ondragover="event.preventDefault();this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="handleDrop(event, 'html')">
+<div class="upload-icon">📄</div>
+<div class="upload-text">
+<span>Click to upload</span> or drag & drop<br>
+HTML files only
+</div>
+</div>
+<input type="file" id="htmlFileInput" accept=".html,.htm" style="display:none" onchange="handleFileSelect(this, 'html')">
+<div id="htmlFileName" style="margin-top:8px;font-size:0.8rem;color:var(--text-secondary);"></div>
+</div>
+
+<div class="tab-content" id="tab-source-zip">
+<div class="upload-area" onclick="document.getElementById('zipFileInput').click()" ondragover="event.preventDefault();this.classList.add('dragging')" ondragleave="this.classList.remove('dragging')" ondrop="handleDrop(event, 'zip')">
+<div class="upload-icon">📦</div>
+<div class="upload-text">
+<span>Click to upload</span> or drag & drop<br>
+ZIP project files
+</div>
+</div>
+<input type="file" id="zipFileInput" accept=".zip" style="display:none" onchange="handleFileSelect(this, 'zip')">
+<div id="zipFileName" style="margin-top:8px;font-size:0.8rem;color:var(--text-secondary);"></div>
+</div>
+</div>
+</div>
+
+<!-- APK Assets -->
+<div class="section">
+<div class="section-title">
+<div class="icon">🖼</div>
+<h2>APK Assets</h2>
+</div>
+<div class="card">
+<div class="grid-2">
+<div>
+<label class="form-label">App Icon</label>
+<div class="image-preview" id="iconPreview" onclick="document.getElementById('iconInput').click()">
+<div class="placeholder">
+<div class="icon">📱</div>
+<div>Upload Icon</div>
+</div>
+</div>
+<input type="file" id="iconInput" accept="image/*" style="display:none" onchange="previewImage(this, 'iconPreview')">
+<div style="margin-top:8px;">
+<label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-secondary);cursor:pointer;">
+<input type="checkbox" checked style="accent-color:var(--purple-neon);"> Rounded corners
+</label>
+</div>
+</div>
+<div>
+<label class="form-label">Splash Screen</label>
+<div class="image-preview" id="splashPreview" onclick="document.getElementById('splashInput').click()">
+<div class="placeholder">
+<div class="icon">🖼</div>
+<div>Upload Splash</div>
+</div>
+</div>
+<input type="file" id="splashInput" accept="image/*" style="display:none" onchange="previewImage(this, 'splashPreview')">
+</div>
+</div>
+</div>
+</div>
+
+<!-- Splash Screen Editor -->
+<div class="section">
+<div class="section-title">
+<div class="icon">🎨</div>
+<h2>Splash Screen Editor</h2>
+</div>
+<div class="card">
+<div class="grid-2">
+<div class="form-group">
+<label class="form-label">Background Color</label>
+<div class="color-picker-group">
+<div class="color-preview" id="splashColorPreview" style="background:#7c3aed;" onclick="document.getElementById('splashColor').click()"></div>
+<input type="color" id="splashColor" class="color-input" value="#7c3aed" onchange="document.getElementById('splashColorPreview').style.background=this.value">
+<input type="text" class="form-input" value="#7c3aed" style="max-width:120px;" id="splashColorHex">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Animation Style</label>
+<select class="form-select">
+<option>Fade In</option>
+<option>Zoom In</option>
+<option>Slide Up</option>
+<option>Bounce</option>
+<option>Neon Glow</option>
+</select>
+</div>
+</div>
+<div class="grid-2">
+<div class="form-group">
+<label class="form-label">Splash Duration (ms)</label>
+<input type="number" class="form-input" value="2000" min="500" max="10000">
+</div>
+<div class="form-group">
+<label class="form-label">Logo Position</label>
+<select class="form-select">
+<option>Center</option>
+<option>Top</option>
+<option>Bottom</option>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Splash Text</label>
+<input type="text" class="form-input" placeholder="Loading...">
+</div>
+
+<!-- Video Splash -->
+<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--glass-border);">
+<div class="card-title" style="font-size:0.9rem;"><span class="emoji">🎥</span> Video Splash <span class="chip">New</span></div>
+<div class="toggle-container">
+<span class="toggle-label">Enable Video Splash</span>
+<label class="toggle-switch">
+<input type="checkbox">
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="upload-area" style="padding:20px;margin-top:8px;" onclick="document.getElementById('videoSplashInput').click()">
+<div class="upload-icon" style="font-size:1.5rem;">🎬</div>
+<div class="upload-text" style="font-size:0.8rem;"><span>Upload MP4</span> for cinematic intro</div>
+</div>
+<input type="file" id="videoSplashInput" accept="video/mp4" style="display:none">
+</div>
+</div>
+</div>
+
+<!-- APK Settings -->
+<div class="section">
+<div class="section-title">
+<div class="icon">⚙️</div>
+<h2>APK Settings</h2>
+</div>
+<div class="card">
+<div class="toggle-container">
+<span class="toggle-label">☑️ Pull To Refresh</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📱 Fullscreen</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📴 Offline Mode</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🔘 Floating Button</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">⬇️ Download Support</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📂 File Upload</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📷 Camera Upload</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🌙 Dark Theme</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🌐 Internet Checker</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">⚡ JavaScript Enable</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">💾 Cache Enable</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🔍 Zoom Support</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🚀 Hardware Acceleration</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+</div>
+</div>
+
+<!-- Screen Settings -->
+<div class="section">
+<div class="section-title">
+<div class="icon">📱</div>
+<h2>Screen Settings</h2>
+</div>
+<div class="card">
+<label class="form-label">Orientation</label>
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" name="orientation" id="portrait" checked>
+<label for="portrait">📱 Portrait</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="orientation" id="landscape">
+<label for="landscape">📺 Landscape</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="orientation" id="auto-orient">
+<label for="auto-orient">🔄 Auto</label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- WebView Engine -->
+<div class="section">
+<div class="section-title">
+<div class="icon">🌍</div>
+<h2>WebView Engine</h2>
+</div>
+<div class="card">
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" name="webview" id="wv-standard" checked>
+<label for="wv-standard">📦 Standard</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="webview" id="wv-fast">
+<label for="wv-fast">⚡ Fast Mode</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="webview" id="wv-secure">
+<label for="wv-secure">🔒 Secure</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="webview" id="wv-ultra">
+<label for="wv-ultra">🚀 Ultra</label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Target Android -->
+<div class="section">
+<div class="section-title">
+<div class="icon">📲</div>
+<h2>Target Android</h2>
+</div>
+<div class="card">
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" name="android" id="android8">
+<label for="android8">Android 8+</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="android" id="android10" checked>
+<label for="android10">Android 10+</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="android" id="android12">
+<label for="android12">Android 12+</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="android" id="android14">
+<label for="android14">Android 14+</label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Build Mode -->
+<div class="section">
+<div class="section-title">
+<div class="icon">⚡</div>
+<h2>Build Mode</h2>
+</div>
+<div class="card">
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" name="buildmode" id="bm-lite">
+<label for="bm-lite">📦 Lite</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="buildmode" id="bm-balanced" checked>
+<label for="bm-balanced">⚖️ Balanced</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="buildmode" id="bm-ultra">
+<label for="bm-ultra">🚀 Ultra</label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Server Selection -->
+<div class="section">
+<div class="section-title">
+<div class="icon">🌍</div>
+<h2>Build Server</h2>
+</div>
+<div class="card">
+<div class="grid-4">
+<div class="server-card active" onclick="selectServer(this)">
+<div class="flag">🇮🇩</div>
+<div class="name">Indonesia</div>
+<div class="ping"><span class="status-dot"></span>12ms</div>
+</div>
+<div class="server-card" onclick="selectServer(this)">
+<div class="flag">🇸🇬</div>
+<div class="name">Singapore</div>
+<div class="ping"><span class="status-dot"></span>24ms</div>
+</div>
+<div class="server-card" onclick="selectServer(this)">
+<div class="flag">🇺🇸</div>
+<div class="name">USA</div>
+<div class="ping"><span class="status-dot"></span>143ms</div>
+</div>
+<div class="server-card" onclick="selectServer(this)">
+<div class="flag">🇩🇪</div>
+<div class="name">Germany</div>
+<div class="ping"><span class="status-dot"></span>180ms</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Push Notification -->
+<div class="section">
+<div class="section-title">
+<div class="icon">🔔</div>
+<h2>Push Notification</h2>
+</div>
+<div class="card">
+<div class="toggle-container">
+<span class="toggle-label">🔔 Enable Push Notification</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="form-group" style="margin-top:12px;">
+<label class="form-label">Firebase Config (JSON)</label>
+<textarea class="form-input" placeholder='{"apiKey": "...", "projectId": "..."}'></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">OneSignal App ID</label>
+<input type="text" class="form-input" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+</div>
+</div>
+</div>
+
+<!-- AdMob -->
+<div class="section">
+<div class="section-title">
+<div class="icon">💰</div>
+<h2>AdMob Settings</h2>
+</div>
+<div class="card">
+<div class="toggle-container">
+<span class="toggle-label">💰 Enable Ads</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="form-group" style="margin-top:12px;">
+<label class="form-label">Banner Ad ID</label>
+<input type="text" class="form-input" placeholder="ca-app-pub-xxxxx/xxxxx">
+</div>
+<div class="form-group">
+<label class="form-label">Interstitial Ad ID</label>
+<input type="text" class="form-input" placeholder="ca-app-pub-xxxxx/xxxxx">
+</div>
+<div class="form-group">
+<label class="form-label">Rewarded Ad ID</label>
+<input type="text" class="form-input" placeholder="ca-app-pub-xxxxx/xxxxx">
+</div>
+</div>
+</div>
+
+<!-- APK Expiration -->
+<div class="section">
+<div class="section-title">
+<div class="icon">⏳</div>
+<h2>APK Expiration System</h2>
+</div>
+<div class="card">
+<div class="toggle-container">
+<span class="toggle-label">⏳ Enable APK Expiration</span>
+<label class="toggle-switch"><input type="checkbox" id="expirationToggle" onchange="toggleExpiration()"><span class="toggle-slider"></span></label>
+</div>
+
+<div id="expirationSettings" style="display:none;margin-top:16px;">
+<label class="form-label">Expiration Period</label>
+<select class="form-select" id="expirationPeriod" onchange="updateCountdown()">
+<option value="60">1 Minute</option>
+<option value="300">5 Minutes</option>
+<option value="600">10 Minutes</option>
+<option value="1800">30 Minutes</option>
+<option value="3600">1 Hour</option>
+<option value="10800">3 Hours</option>
+<option value="21600">6 Hours</option>
+<option value="43200">12 Hours</option>
+<option value="86400" selected>1 Day</option>
+<option value="259200">3 Days</option>
+<option value="604800">7 Days</option>
+<option value="1209600">14 Days</option>
+<option value="2592000">30 Days</option>
+<option value="5184000">60 Days</option>
+<option value="7776000">90 Days</option>
+<option value="custom">Custom Date & Time</option>
+</select>
+
+<div id="customDateTime" style="display:none;margin-top:12px;">
+<div class="grid-2">
+<div class="form-group">
+<label class="form-label">Date</label>
+<input type="date" class="form-input" id="customDate">
+</div>
+<div class="form-group">
+<label class="form-label">Time</label>
+<input type="time" class="form-input" id="customTime">
+</div>
+</div>
+</div>
+
+<div style="margin-top:16px;">
+<div style="text-align:center;font-size:0.8rem;color:var(--text-secondary);margin-bottom:8px;">⏳ APK Expires In:</div>
+<div class="countdown-display" id="countdownDisplay">
+<div class="countdown-unit">
+<div class="number" id="cd-days">00</div>
+<div class="label">Days</div>
+</div>
+<div class="countdown-unit">
+<div class="number" id="cd-hours">00</div>
+<div class="label">Hours</div>
+</div>
+<div class="countdown-unit">
+<div class="number" id="cd-mins">00</div>
+<div class="label">Mins</div>
+</div>
+<div class="countdown-unit">
+<div class="number" id="cd-secs">00</div>
+<div class="label">Secs</div>
+</div>
+</div>
+</div>
+
+<div style="margin-top:16px;">
+<div class="card-title" style="font-size:0.85rem;"><span class="emoji">🔑</span> Validation</div>
+<div class="toggle-container">
+<span class="toggle-label">🌐 Online Validation</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📴 Offline Validation</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🛡️ Anti Bypass Date</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🔄 Server Sync Time</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+</div>
+
+<div style="margin-top:16px;">
+<div class="card-title" style="font-size:0.85rem;"><span class="emoji">🚫</span> Expired Page</div>
+<div class="form-group">
+<label class="form-label">Expired Message</label>
+<input type="text" class="form-input" value="⚠ Aplikasi Kadaluarsa">
+</div>
+<div class="form-group">
+<label class="form-label">Update URL</label>
+<input type="text" class="form-input" placeholder="https://play.google.com/...">
+</div>
+<div class="form-group">
+<label class="form-label">Contact URL</label>
+<input type="text" class="form-input" placeholder="https://wa.me/...">
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- License System -->
+<div class="section">
+<div class="section-title">
+<div class="icon">🔑</div>
+<h2>License System</h2>
+</div>
+<div class="card">
+<div class="toggle-container">
+<span class="toggle-label">🔑 Enable License System</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="form-group" style="margin-top:12px;">
+<label class="form-label">Device Limit</label>
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" name="devicelimit" id="dev1" checked>
+<label for="dev1">1 Device</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="devicelimit" id="dev3">
+<label for="dev3">3 Devices</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="devicelimit" id="devunlimited">
+<label for="devunlimited">Unlimited</label>
+</div>
+</div>
+</div>
+<button class="btn btn-secondary" style="font-size:0.8rem;margin-top:8px;" onclick="generateLicense()">🔑 Generate License Key</button>
+<div id="licenseKey" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--cyan-neon);"></div>
+</div>
+</div>
+
+<!-- Live Preview -->
+<div class="section">
+<div class="section-title">
+<div class="icon">📱</div>
+<h2>Live Preview</h2>
+</div>
+<div class="card" style="text-align:center;">
+<div class="phone-preview">
+<div class="phone-notch"></div>
+<div class="phone-screen" id="previewScreen">
+<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.8rem;flex-direction:column;gap:10px;">
+<div style="font-size:2rem;">📱</div>
+<div>Enter URL and click Preview</div>
+</div>
+</div>
+</div>
+<div style="margin-top:16px;display:flex;gap:8px;justify-content:center;">
+<button class="btn btn-secondary btn-icon tooltip" data-tooltip="Rotate" onclick="rotatePreview()">🔄</button>
+<button class="btn btn-secondary btn-icon tooltip" data-tooltip="Refresh" onclick="refreshPreview()">🔃</button>
+<button class="btn btn-secondary btn-icon tooltip" data-tooltip="Fullscreen">⛶</button>
+</div>
+</div>
+</div>
+
+<!-- Build Button -->
+<div class="section">
+<div class="card" style="text-align:center;padding:30px;">
+<button class="btn btn-primary btn-large btn-full" onclick="startBuild()" id="buildBtn">
+⚡ Build APK Now
+</button>
+<button class="btn btn-cyan btn-large btn-full" style="margin-top:10px;" onclick="turboBuild()">
+🚀 Nexus Turbo Build
+</button>
+<p style="font-size:0.7rem;color:var(--text-muted);margin-top:12px;">Free • Unlimited • No Limits</p>
+</div>
+</div>
+
+<!-- Build Progress -->
+<div class="section">
+<div class="build-progress-container" id="buildProgress">
+<div class="card">
+<div class="card-title"><span class="emoji">⚡</span> Building APK...</div>
+<div class="build-progress-bar">
+<div class="build-progress-fill" id="progressFill"></div>
+</div>
+<div class="build-progress-text">
+<span id="buildStage">Initializing...</span>
+<span id="buildPercent">0%</span>
+</div>
+</div>
+</div>
+
+<!-- Build Console -->
+<div class="build-console" id="buildConsole"></div>
+</div>
+
+<!-- Download Card -->
+<div class="section">
+<div class="card">
+<div class="download-card" id="downloadCard">
+<div class="download-icon">✅</div>
+<div class="download-title">APK Ready!</div>
+<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px;">Your app has been successfully built</p>
+<div class="download-info">
+<div class="download-info-item">
+<div class="label">APK Size</div>
+<div class="value">4.2 MB</div>
+</div>
+<div class="download-info-item">
+<div class="label">Build Time</div>
+<div class="value">1.4s</div>
+</div>
+<div class="download-info-item">
+<div class="label">Android</div>
+<div class="value">10+</div>
+</div>
+<div class="download-info-item">
+<div class="label">Security</div>
+<div class="value" style="color:var(--green-neon);">✅ Safe</div>
+</div>
+</div>
+<div class="download-buttons">
+<button class="btn btn-success btn-large btn-full" onclick="downloadAPK()">⬇️ Download APK</button>
+<button class="btn btn-primary btn-full" onclick="downloadAAB()">⬇️ Download AAB</button>
+<button class="btn btn-secondary btn-full" onclick="resetBuild()">🔁 Build Again</button>
+</div>
+
+<!-- Share -->
+<div style="margin-top:20px;">
+<div class="card-title" style="font-size:0.85rem;justify-content:center;"><span class="emoji">📤</span> Share APK</div>
+<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+<button class="btn btn-secondary" style="font-size:0.75rem;" onclick="shareAPK('qr')">📱 QR Code</button>
+<button class="btn btn-secondary" style="font-size:0.75rem;" onclick="shareAPK('wa')">💬 WhatsApp</button>
+<button class="btn btn-secondary" style="font-size:0.75rem;" onclick="shareAPK('tg')">✈️ Telegram</button>
+<button class="btn btn-secondary" style="font-size:0.75rem;" onclick="shareAPK('link')">🔗 Copy Link</button>
+</div>
+<div id="qrContainer" style="display:none;margin-top:16px;">
+<div class="qr-placeholder">
+<div style="width:100%;height:100%;background:repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50%/12px 12px;border-radius:4px;"></div>
+</div>
+<p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Scan to download</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: TEMPLATES ===== -->
+<div class="page-section" id="page-templates">
+<div class="section">
+<div class="section-title">
+<div class="icon">🛍️</div>
+<h2>APK Template Marketplace</h2>
+<span class="badge">Free</span>
+</div>
+
+<div class="tab-header">
+<button class="tab-btn active" onclick="filterTemplates(this, 'all')">All</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'ecommerce')">🛒 E-Commerce</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'blog')">📝 Blog</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'portfolio')">💼 Portfolio</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'ai')">🤖 AI Tools</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'streaming')">🎬 Streaming</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'social')">📱 Social</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'gaming')">🎮 Gaming</button>
+<button class="tab-btn" onclick="filterTemplates(this, 'education')">📚 Education</button>
+</div>
+
+<div class="grid-2" id="templateGrid">
+<div class="template-card" data-category="ecommerce">
+<div class="template-preview" style="background:linear-gradient(135deg, #7c3aed33, #3b82f633);">🛒</div>
+<div class="template-info">
+<div class="template-name">ShopNex</div>
+<div class="template-category">E-Commerce • Modern</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('ShopNex')">⚡ Apply Template</button>
+</div>
+</div>
+<div class="template-card" data-category="blog">
+<div class="template-preview" style="background:linear-gradient(135deg, #22c55e33, #3b82f633);">📝</div>
+<div class="template-info">
+<div class="template-name">BlogPro</div>
+<div class="template-category">Blog • Minimal</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('BlogPro')">⚡ Apply Template</button>
+</div>
+</div>
+<div class="template-card" data-category="portfolio">
+<div class="template-preview" style="background:linear-gradient(135deg, #ec489933, #f9731633);">💼</div>
+<div class="template-info">
+<div class="template-name">Folio X</div>
+<div class="template-category">Portfolio • Creative</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('FolioX')">⚡ Apply Template</button>
+</div>
+</div>
+<div class="template-card" data-category="ai">
+<div class="template-preview" style="background:linear-gradient(135deg, #22d3ee33, #a855f733);">🤖</div>
+<div class="template-info">
+<div class="template-name">AI Dashboard</div>
+<div class="template-category">AI Tools • Futuristic</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('AI Dashboard')">⚡ Apply Template</button>
+</div>
+</div>
+<div class="template-card" data-category="streaming">
+<div class="template-preview" style="background:linear-gradient(135deg, #ef444433, #f9731633);">🎬</div>
+<div class="template-info">
+<div class="template-name">StreamVault</div>
+<div class="template-category">Streaming • Dark</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('StreamVault')">⚡ Apply Template</button>
+</div>
+</div>
+<div class="template-card" data-category="social">
+<div class="template-preview" style="background:linear-gradient(135deg, #3b82f633, #22c55e33);">📱</div>
+<div class="template-info">
+<div class="template-name">SociaLink</div>
+<div class="template-category">Social Media • Vibrant</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('SociaLink')">⚡ Apply Template</button>
+</div>
+</div>
+<div class="template-card" data-category="gaming">
+<div class="template-preview" style="background:linear-gradient(135deg, #eab30833, #ef444433);">🎮</div>
+<div class="template-info">
+<div class="template-name">GameHub</div>
+<div class="template-category">Gaming • Neon</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('GameHub')">⚡ Apply Template</button>
+</div>
+</div>
+<div class="template-card" data-category="education">
+<div class="template-preview" style="background:linear-gradient(135deg, #60a5fa33, #a855f733);">📚</div>
+<div class="template-info">
+<div class="template-name">EduLearn</div>
+<div class="template-category">Education • Clean</div>
+<button class="btn btn-secondary" style="font-size:0.7rem;padding:6px 12px;margin-top:8px;width:100%;" onclick="applyTemplate('EduLearn')">⚡ Apply Template</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: PLUGINS ===== -->
+<div class="page-section" id="page-plugins">
+<div class="section">
+<div class="section-title">
+<div class="icon">🧩</div>
+<h2>Plugin Manager</h2>
+<span class="badge">6 Available</span>
+</div>
+<div class="card">
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">💰</div>
+<div><div class="plugin-name">AdMob Plugin</div><div class="plugin-desc">Google AdMob integration</div></div>
+</div>
+<button class="plugin-install-btn" onclick="installPlugin(this)">➕ Install</button>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">🔥</div>
+<div><div class="plugin-name">Firebase Plugin</div><div class="plugin-desc">Firebase analytics & push</div></div>
+</div>
+<button class="plugin-install-btn" onclick="installPlugin(this)">➕ Install</button>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">🎵</div>
+<div><div class="plugin-name">TikTok Pixel</div><div class="plugin-desc">TikTok tracking pixel</div></div>
+</div>
+<button class="plugin-install-btn" onclick="installPlugin(this)">➕ Install</button>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">📊</div>
+<div><div class="plugin-name">Meta Pixel</div><div class="plugin-desc">Facebook/Meta tracking</div></div>
+</div>
+<button class="plugin-install-btn" onclick="installPlugin(this)">➕ Install</button>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">📈</div>
+<div><div class="plugin-name">Analytics Plugin</div><div class="plugin-desc">Advanced analytics suite</div></div>
+</div>
+<button class="plugin-install-btn" onclick="installPlugin(this)">➕ Install</button>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">🪙</div>
+<div><div class="plugin-name">Crypto Wallet</div><div class="plugin-desc">Web3 wallet integration</div></div>
+</div>
+<button class="plugin-install-btn" onclick="installPlugin(this)">➕ Install</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: HISTORY ===== -->
+<div class="page-section" id="page-history">
+<div class="section">
+<div class="section-title">
+<div class="icon">📋</div>
+<h2>Build History</h2>
+</div>
+<div class="card">
+<div class="history-item">
+<div class="info">
+<div class="status success"></div>
+<div>
+<div class="name">MyApp v1.0.0</div>
+<div class="meta">2 minutes ago • 4.2 MB • 1.4s</div>
+</div>
+</div>
+<div class="actions">
+<button class="btn btn-secondary btn-icon" style="width:32px;height:32px;font-size:0.8rem;" onclick="showToast('Downloading...', 'info')">⬇️</button>
+</div>
+</div>
+<div class="history-item">
+<div class="info">
+<div class="status success"></div>
+<div>
+<div class="name">WebViewApp v2.1.0</div>
+<div class="meta">1 hour ago • 3.8 MB • 1.2s</div>
+</div>
+</div>
+<div class="actions">
+<button class="btn btn-secondary btn-icon" style="width:32px;height:32px;font-size:0.8rem;">⬇️</button>
+</div>
+</div>
+<div class="history-item">
+<div class="info">
+<div class="status failed"></div>
+<div>
+<div class="name">TestApp v1.0.0</div>
+<div class="meta">3 hours ago • Failed • URL Error</div>
+</div>
+</div>
+<div class="actions">
+<button class="btn btn-secondary btn-icon" style="width:32px;height:32px;font-size:0.8rem;">🔁</button>
+</div>
+</div>
+<div class="history-item">
+<div class="info">
+<div class="status success"></div>
+<div>
+<div class="name">BlogApp v1.2.0</div>
+<div class="meta">Yesterday • 5.1 MB • 2.1s</div>
+</div>
+</div>
+<div class="actions">
+<button class="btn btn-secondary btn-icon" style="width:32px;height:32px;font-size:0.8rem;">⬇️</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: ANALYTICS ===== -->
+<div class="page-section" id="page-analytics">
+<div class="section">
+<div class="section-title">
+<div class="icon">📊</div>
+<h2>Realtime Build Analytics</h2>
+</div>
+
+<div class="stats-grid" style="margin-bottom:20px;">
+<div class="stat-item">
+<div class="stat-value">1.2s</div>
+<div class="stat-label">Avg Build Speed</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">4.1MB</div>
+<div class="stat-label">Avg APK Size</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">2.1%</div>
+<div class="stat-label">Error Ratio</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">98.7%</div>
+<div class="stat-label">Compatibility</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">📈</span> Build Speed Trend</div>
+<div class="mini-chart">
+<div class="bar" style="height:60%"></div>
+<div class="bar" style="height:45%"></div>
+<div class="bar" style="height:70%"></div>
+<div class="bar" style="height:55%"></div>
+<div class="bar" style="height:80%"></div>
+<div class="bar" style="height:65%"></div>
+<div class="bar" style="height:90%"></div>
+<div class="bar" style="height:75%"></div>
+<div class="bar" style="height:85%"></div>
+<div class="bar" style="height:70%"></div>
+<div class="bar" style="height:60%"></div>
+<div class="bar" style="height:95%"></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">📦</span> APK Size Trend</div>
+<div class="mini-chart">
+<div class="bar" style="height:40%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:55%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:35%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:60%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:50%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:45%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:70%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:55%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:40%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+<div class="bar" style="height:65%;background:linear-gradient(to top, var(--cyan-neon), var(--blue-electric));"></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">⚙️</span> Most Used Settings</div>
+<div style="margin-top:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-size:0.8rem;color:var(--text-secondary);">JavaScript Enable</span>
+<span style="font-size:0.8rem;color:var(--purple-light);">94%</span>
+</div>
+<div class="score-meter"><div class="score-fill purple" style="width:94%"></div></div>
+</div>
+<div style="margin-top:12px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-size:0.8rem;color:var(--text-secondary);">Pull To Refresh</span>
+<span style="font-size:0.8rem;color:var(--purple-light);">87%</span>
+</div>
+<div class="score-meter"><div class="score-fill blue" style="width:87%"></div></div>
+</div>
+<div style="margin-top:12px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-size:0.8rem;color:var(--text-secondary);">Fullscreen Mode</span>
+<span style="font-size:0.8rem;color:var(--purple-light);">72%</span>
+</div>
+<div class="score-meter"><div class="score-fill green" style="width:72%"></div></div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: SECURITY ===== -->
+<div class="page-section" id="page-security">
+<div class="section">
+<div class="section-title">
+<div class="icon">🛡️</div>
+<h2>Advanced Security</h2>
+</div>
+
+<div class="card" style="text-align:center;">
+<div class="security-circle">
+<span class="score-text">85</span>
+</div>
+<div style="margin-top:12px;font-size:0.9rem;font-weight:600;color:var(--green-neon);">✅ Security Score: Excellent</div>
+<div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Your APK is well protected</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">🔐</span> Security Options</div>
+<div class="toggle-container">
+<span class="toggle-label">🔐 APK Encryption</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🔀 Code Obfuscation</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🔒 Secure WebView</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📌 SSL Pinning</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🐛 Anti Debug</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📱 Root Detection</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🖥️ Emulator Detection</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📸 Screenshot Blocker</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: OPTIMIZER ===== -->
+<div class="page-section" id="page-optimizer">
+<div class="section">
+<div class="section-title">
+<div class="icon">⚡</div>
+<h2>AI Code Optimizer</h2>
+</div>
+
+<div class="card" style="text-align:center;">
+<div style="font-size:3rem;margin-bottom:8px;">⚡</div>
+<div style="font-size:1.5rem;font-weight:700;font-family:'Sora',sans-serif;background:linear-gradient(135deg,var(--green-neon),var(--cyan-neon));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">92 / 100</div>
+<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px;">Optimization Score</div>
+<div class="score-meter" style="margin-top:12px;"><div class="score-fill green" style="width:92%"></div></div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">🧬</span> Optimization Options</div>
+<div class="toggle-container">
+<span class="toggle-label">📦 Minify Assets</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🗜️ Compress HTML</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">⚡ Optimize JavaScript</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">🖼️ Optimize Images</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<div class="toggle-container">
+<span class="toggle-label">📉 Reduce APK Size</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+<button class="btn btn-cyan btn-full" style="margin-top:16px;" onclick="runOptimizer()">⚡ Run Optimizer</button>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">📊</span> Performance Metrics</div>
+<div class="stats-grid">
+<div class="stat-item">
+<div class="stat-value">4.2MB</div>
+<div class="stat-label">APK Size</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">92</div>
+<div class="stat-label">Performance</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">24MB</div>
+<div class="stat-label">RAM Usage</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: CLONER ===== -->
+<div class="page-section" id="page-cloner">
+<div class="section">
+<div class="section-title">
+<div class="icon">📱</div>
+<h2>APK Cloner System</h2>
+</div>
+<div class="card">
+<div class="upload-area" onclick="document.getElementById('cloneInput').click()">
+<div class="upload-icon">📱</div>
+<div class="upload-text"><span>Upload APK</span> to clone</div>
+</div>
+<input type="file" id="cloneInput" accept=".apk" style="display:none">
+
+<div style="margin-top:20px;">
+<div class="form-group">
+<label class="form-label">New Package Name</label>
+<input type="text" class="form-input" placeholder="com.clone.myapp">
+</div>
+<div class="form-group">
+<label class="form-label">New App Name</label>
+<input type="text" class="form-input" placeholder="My Cloned App">
+</div>
+<div class="grid-2">
+<div>
+<label class="form-label">New Icon</label>
+<div class="image-preview" onclick="document.getElementById('cloneIconInput').click()">
+<div class="placeholder"><div class="icon">📱</div><div>Upload</div></div>
+</div>
+<input type="file" id="cloneIconInput" accept="image/*" style="display:none">
+</div>
+<div>
+<label class="form-label">New Splash</label>
+<div class="image-preview" onclick="document.getElementById('cloneSplashInput').click()">
+<div class="placeholder"><div class="icon">🖼</div><div>Upload</div></div>
+</div>
+<input type="file" id="cloneSplashInput" accept="image/*" style="display:none">
+</div>
+</div>
+<button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="cloneAPK()">📱 Clone & Rebuild APK</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: SCANNER ===== -->
+<div class="page-section" id="page-scanner">
+<div class="section">
+<div class="section-title">
+<div class="icon">🔍</div>
+<h2>APK Information Scanner</h2>
+</div>
+<div class="card">
+<div class="upload-area" onclick="document.getElementById('scanInput').click()">
+<div class="upload-icon">🔍</div>
+<div class="upload-text"><span>Upload APK</span> to scan</div>
+</div>
+<input type="file" id="scanInput" accept=".apk" style="display:none" onchange="scanAPK()">
+</div>
+
+<div class="card" id="scanResults" style="display:none;">
+<div class="card-title"><span class="emoji">📦</span> Scan Results</div>
+<div style="display:grid;gap:12px;">
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--glass-border);">
+<span style="font-size:0.8rem;color:var(--text-muted);">Package Name</span>
+<span style="font-size:0.8rem;">com.example.app</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--glass-border);">
+<span style="font-size:0.8rem;color:var(--text-muted);">SDK Version</span>
+<span style="font-size:0.8rem;">API 33 (Android 13)</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--glass-border);">
+<span style="font-size:0.8rem;color:var(--text-muted);">APK Size</span>
+<span style="font-size:0.8rem;">12.4 MB</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--glass-border);">
+<span style="font-size:0.8rem;color:var(--text-muted);">Permissions</span>
+<span style="font-size:0.8rem;">8 permissions</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--glass-border);">
+<span style="font-size:0.8rem;color:var(--text-muted);">Libraries</span>
+<span style="font-size:0.8rem;">5 libraries</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;">
+<span style="font-size:0.8rem;color:var(--text-muted);">Risk Score</span>
+<span style="font-size:0.8rem;color:var(--green-neon);">Low Risk ✅</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: FILE MANAGER ===== -->
+<div class="page-section" id="page-filemanager">
+<div class="section">
+<div class="section-title">
+<div class="icon">📁</div>
+<h2>File Manager</h2>
+</div>
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<input type="text" class="form-input" placeholder="🔍 Search files..." style="max-width:300px;">
+<button class="btn btn-secondary" style="font-size:0.8rem;" onclick="document.getElementById('fileUploadInput').click()">📤 Upload</button>
+<input type="file" id="fileUploadInput" multiple style="display:none">
+</div>
+
+<div class="file-item">
+<span class="file-icon">📁</span>
+<span class="file-name">assets/</span>
+<span class="file-size">—</span>
+</div>
+<div class="file-item">
+<span class="file-icon">📁</span>
+<span class="file-name">icons/</span>
+<span class="file-size">—</span>
+</div>
+<div class="file-item">
+<span class="file-icon">📄</span>
+<span class="file-name">index.html</span>
+<span class="file-size">24 KB</span>
+</div>
+<div class="file-item">
+<span class="file-icon">🎨</span>
+<span class="file-name">style.css</span>
+<span class="file-size">12 KB</span>
+</div>
+<div class="file-item">
+<span class="file-icon">⚡</span>
+<span class="file-name">app.js</span>
+<span class="file-size">8 KB</span>
+</div>
+<div class="file-item">
+<span class="file-icon">🖼</span>
+<span class="file-name">icon.png</span>
+<span class="file-size">45 KB</span>
+</div>
+<div class="file-item">
+<span class="file-icon">🖼</span>
+<span class="file-name">splash.png</span>
+<span class="file-size">120 KB</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: API MANAGER ===== -->
+<div class="page-section" id="page-api">
+<div class="section">
+<div class="section-title">
+<div class="icon">📡</div>
+<h2>API Manager</h2>
+</div>
+<div class="card">
+<div class="card-title"><span class="emoji">🔑</span> API Keys</div>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
+<input type="text" class="form-input" value="nx_live_a8f3k2m9x7p1q4w6" readonly style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
+<button class="btn btn-secondary btn-icon" onclick="showToast('API Key copied!', 'success')" style="min-width:40px;">📋</button>
+</div>
+<button class="btn btn-primary" style="font-size:0.8rem;" onclick="showToast('New API Key generated!', 'success')">🔄 Regenerate Key</button>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">📊</span> API Statistics</div>
+<div class="stats-grid">
+<div class="stat-item">
+<div class="stat-value">1,247</div>
+<div class="stat-label">Total Requests</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">99.8%</div>
+<div class="stat-label">Uptime</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">12ms</div>
+<div class="stat-label">Avg Latency</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">📝</span> API Logs</div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;max-height:200px;overflow-y:auto;">
+<div style="padding:4px 0;color:var(--green-neon);">[200] GET /api/build - 12ms</div>
+<div style="padding:4px 0;color:var(--green-neon);">[200] POST /api/generate - 245ms</div>
+<div style="padding:4px 0;color:var(--green-neon);">[200] GET /api/status - 8ms</div>
+<div style="padding:4px 0;color:var(--yellow-neon);">[429] POST /api/build - Rate limited</div>
+<div style="padding:4px 0;color:var(--green-neon);">[200] GET /api/download - 15ms</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: EXPERIMENTAL ===== -->
+<div class="page-section" id="page-experimental">
+<div class="section">
+<div class="section-title">
+<div class="icon">🧪</div>
+<h2>Experimental Features</h2>
+<span class="badge" style="background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.3);color:var(--orange-neon);">Beta</span>
+</div>
+<div class="card">
+<p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:16px;">⚠️ These features are experimental and may not work as expected.</p>
+
+<div class="experimental-item">
+<div class="exp-info">
+<span>⚡</span>
+<div>
+<div style="font-size:0.85rem;font-weight:600;">AI Performance Boost</div>
+<div style="font-size:0.7rem;color:var(--text-muted);">AI-powered performance optimization</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;">
+<span class="exp-badge">Beta</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+</div>
+
+<div class="experimental-item">
+<div class="exp-info">
+<span>🚀</span>
+<div>
+<div style="font-size:0.85rem;font-weight:600;">Ultra Rendering Engine</div>
+<div style="font-size:0.7rem;color:var(--text-muted);">Next-gen rendering pipeline</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;">
+<span class="exp-badge">Alpha</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+</div>
+
+<div class="experimental-item">
+<div class="exp-info">
+<span>🌐</span>
+<div>
+<div style="font-size:0.85rem;font-weight:600;">Experimental WebView</div>
+<div style="font-size:0.7rem;color:var(--text-muted);">Chromium-based WebView engine</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;">
+<span class="exp-badge">Beta</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+</div>
+
+<div class="experimental-item">
+<div class="exp-info">
+<span>⚛️</span>
+<div>
+<div style="font-size:0.85rem;font-weight:600;">Quantum Speed Mode</div>
+<div style="font-size:0.7rem;color:var(--text-muted);">Experimental quantum-inspired optimization</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;">
+<span class="exp-badge">Alpha</span>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: DESKTOP EXPORT ===== -->
+<div class="page-section" id="page-desktop">
+<div class="section">
+<div class="section-title">
+<div class="icon">🖥️</div>
+<h2>Desktop Export</h2>
+</div>
+<div class="card">
+<p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:20px;">Export your app for desktop platforms</p>
+<div class="grid-3">
+<div class="server-card" onclick="exportDesktop('windows')">
+<div class="flag">🪟</div>
+<div class="name">Windows</div>
+<div class="ping" style="color:var(--text-muted);">.EXE</div>
+</div>
+<div class="server-card" onclick="exportDesktop('linux')">
+<div class="flag">🐧</div>
+<div class="name">Linux</div>
+<div class="ping" style="color:var(--text-muted);">.AppImage</div>
+</div>
+<div class="server-card" onclick="exportDesktop('macos')">
+<div class="flag">🍎</div>
+<div class="name">macOS</div>
+<div class="ping" style="color:var(--text-muted);">.DMG</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: SOCIAL ===== -->
+<div class="page-section" id="page-social">
+<div class="section">
+<div class="section-title">
+<div class="icon">📲</div>
+<h2>Social Integration</h2>
+</div>
+<div class="card">
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">🎵</div>
+<div><div class="plugin-name">TikTok SDK</div><div class="plugin-desc">TikTok login & share</div></div>
+</div>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">💬</div>
+<div><div class="plugin-name">WhatsApp Integration</div><div class="plugin-desc">Direct chat & share</div></div>
+</div>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">✈️</div>
+<div><div class="plugin-name">Telegram Login</div><div class="plugin-desc">Telegram auth widget</div></div>
+</div>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">🎮</div>
+<div><div class="plugin-name">Discord RPC</div><div class="plugin-desc">Rich presence display</div></div>
+</div>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+<div class="plugin-card">
+<div class="plugin-info">
+<div class="plugin-icon">📷</div>
+<div><div class="plugin-name">Instagram Deep Link</div><div class="plugin-desc">Instagram profile & post links</div></div>
+</div>
+<label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: THEME ===== -->
+<div class="page-section" id="page-theme">
+<div class="section">
+<div class="section-title">
+<div class="icon">🎨</div>
+<h2>Theme Customizer</h2>
+</div>
+<div class="card">
+<div class="grid-2">
+<div class="form-group">
+<label class="form-label">Primary Color</label>
+<div class="color-picker-group">
+<div class="color-preview" style="background:#a855f7;" id="themePrimary"></div>
+<input type="color" value="#a855f7" onchange="document.getElementById('themePrimary').style.background=this.value" class="color-input">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Neon Color</label>
+<div class="color-picker-group">
+<div class="color-preview" style="background:#22d3ee;" id="themeNeon"></div>
+<input type="color" value="#22d3ee" onchange="document.getElementById('themeNeon').style.background=this.value" class="color-input">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Background</label>
+<div class="color-picker-group">
+<div class="color-preview" style="background:#0a0a1a;" id="themeBg"></div>
+<input type="color" value="#0a0a1a" onchange="document.getElementById('themeBg').style.background=this.value" class="color-input">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Border Glow</label>
+<div class="color-picker-group">
+<div class="color-preview" style="background:#7c3aed;" id="themeBorder"></div>
+<input type="color" value="#7c3aed" onchange="document.getElementById('themeBorder').style.background=this.value" class="color-input">
+</div>
+</div>
+</div>
+
+<div class="form-group" style="margin-top:12px;">
+<label class="form-label">Font Style</label>
+<select class="form-select">
+<option>Poppins</option>
+<option>Sora</option>
+<option>Inter</option>
+<option>Roboto</option>
+<option>JetBrains Mono</option>
+</select>
+</div>
+
+<div class="form-group">
+<label class="form-label">Card Style</label>
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" name="cardstyle" id="cs-glass" checked>
+<label for="cs-glass">Glass</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="cardstyle" id="cs-solid">
+<label for="cs-solid">Solid</label>
+</div>
+<div class="radio-option">
+<input type="radio" name="cardstyle" id="cs-outline">
+<label for="cs-outline">Outline</label>
+</div>
+</div>
+</div>
+
+<div class="form-group">
+<label class="form-label">Button Animation</label>
+<select class="form-select">
+<option>Glow Effect</option>
+<option>Slide Shine</option>
+<option>Pulse</option>
+<option>Bounce</option>
+<option>None</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: GAMIFICATION ===== -->
+<div class="page-section" id="page-gamification">
+<div class="section">
+<div class="section-title">
+<div class="icon">🎮</div>
+<h2>Level & Achievements</h2>
+</div>
+
+<div class="card" style="text-align:center;">
+<div style="font-size:2.5rem;margin-bottom:8px;">🏆</div>
+<div style="font-size:1.2rem;font-weight:700;font-family:'Sora',sans-serif;">Level 12</div>
+<div style="font-size:0.8rem;color:var(--text-secondary);margin:8px 0;">APK Master</div>
+<div style="display:flex;align-items:center;gap:8px;">
+<div class="xp-bar" style="flex:1;"><div class="xp-fill" style="width:68%;"></div></div>
+<span style="font-size:0.75rem;color:var(--purple-light);">6,800 / 10,000 XP</span>
+</div>
+<div style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">🔥 Build Streak: 7 Days</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">🏅</span> Achievements</div>
+<div class="badge-grid">
+<div class="badge tooltip" data-tooltip="First Build">🎯</div>
+<div class="badge tooltip" data-tooltip="10 Builds">📦</div>
+<div class="badge tooltip" data-tooltip="50 Builds">🏆</div>
+<div class="badge tooltip" data-tooltip="Speed Demon">⚡</div>
+<div class="badge tooltip" data-tooltip="Security Pro">🛡️</div>
+<div class="badge tooltip" data-tooltip="Plugin Master">🧩</div>
+<div class="badge tooltip" data-tooltip="Theme Creator">🎨</div>
+<div class="badge locked tooltip" data-tooltip="100 Builds">💎</div>
+<div class="badge locked tooltip" data-tooltip="Zero Errors">🌟</div>
+<div class="badge locked tooltip" data-tooltip="API Pro">📡</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">📅</span> Daily Reward</div>
+<div style="text-align:center;">
+<div style="font-size:2rem;margin-bottom:8px;">🎁</div>
+<p style="font-size:0.85rem;color:var(--text-secondary);">Come back daily for XP bonus!</p>
+<button class="btn btn-primary" style="margin-top:12px;" onclick="claimReward()">🎁 Claim +500 XP</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: LANGUAGE ===== -->
+<div class="page-section" id="page-language">
+<div class="section">
+<div class="section-title">
+<div class="icon">🌎</div>
+<h2>Language Settings</h2>
+</div>
+<div class="card">
+<div class="card-title"><span class="emoji">🌐</span> Select Language</div>
+<div class="lang-selector">
+<button class="lang-btn active" onclick="selectLang(this)">🇮🇩 Indonesia</button>
+<button class="lang-btn" onclick="selectLang(this)">🇺🇸 English</button>
+<button class="lang-btn" onclick="selectLang(this)">🇯🇵 日本語</button>
+<button class="lang-btn" onclick="selectLang(this)">🇰🇷 한국어</button>
+<button class="lang-btn" onclick="selectLang(this)">🇸🇦 العربية</button>
+<button class="lang-btn" onclick="selectLang(this)">🇷🇺 Русский</button>
+</div>
+<div class="toggle-container" style="margin-top:16px;">
+<span class="toggle-label">🤖 AI Auto Translate</span>
+<label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: LIVE ACTIVITY ===== -->
+<div class="page-section" id="page-activity">
+<div class="section">
+<div class="section-title">
+<div class="icon">🛰️</div>
+<h2>Live Activity</h2>
+</div>
+
+<div class="stats-grid" style="margin-bottom:20px;">
+<div class="stat-item">
+<div class="stat-value" id="usersOnline">1,247</div>
+<div class="stat-label">Users Online</div>
+</div>
+<div class="stat-item">
+<div class="stat-value" id="buildingNow">34</div>
+<div class="stat-label">Building Now</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">99.9%</div>
+<div class="stat-label">Server Uptime</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="emoji">📡</span> Live Feed</div>
+<div class="activity-feed" id="activityFeed">
+<div class="activity-item">
+<span class="time">2s ago</span>
+<span class="activity-text">🟢 User#4821 built <strong>MyShop</strong> successfully</span>
+</div>
+<div class="activity-item">
+<span class="time">5s ago</span>
+<span class="activity-text">🔵 User#7293 started building <strong>BlogApp</strong></span>
+</div>
+<div class="activity-item">
+<span class="time">12s ago</span>
+<span class="activity-text">🟢 User#1029 downloaded APK</span>
+</div>
+<div class="activity-item">
+<span class="time">18s ago</span>
+<span class="activity-text">🟢 User#5612 built <strong>PortfolioX</strong> successfully</span>
+</div>
+<div class="activity-item">
+<span class="time">25s ago</span>
+<span class="activity-text">🔵 User#3847 started building <strong>GameApp</strong></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</main>
+</div>
+
+<script>
+// ===== LOADING SCREEN =====
+let loadingProgress = 0;
+const loadingInterval = setInterval(() => {
+loadingProgress += Math.random() * 15 + 5;
+if (loadingProgress >= 100) {
+loadingProgress = 100;
+clearInterval(loadingInterval);
+setTimeout(() => {
+document.getElementById('loading-screen').classList.add('hidden');
+document.getElementById('app').classList.add('visible');
+playSound('startup');
+}, 500);
+}
+document.getElementById('loadingBar').style.width = loadingProgress + '%';
+document.getElementById('loadingPercent').textContent = Math.floor(loadingProgress) + '%';
+}, 200);
+
+// ===== PARTICLES =====
+function createParticles() {
+const container = document.getElementById('particles-container');
+for (let i = 0; i < 30; i++) {
+const p = document.createElement('div');
+p.className = 'particle';
+p.style.left = Math.random() * 100 + '%';
+p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+p.style.animationDelay = (Math.random() * 10) + 's';
+p.style.width = (Math.random() * 3 + 1) + 'px';
+p.style.height = p.style.width;
+const colors = ['#a855f7', '#3b82f6', '#22d3ee', '#ec4899'];
+p.style.background = colors[Math.floor(Math.random() * colors.length)];
+container.appendChild(p);
+}
+}
+createParticles();
+
+// ===== CURSOR TRAIL =====
+document.addEventListener('mousemove', (e) => {
+const trail = document.getElementById('cursorTrail');
+trail.style.left = e.clientX + 'px';
+trail.style.top = e.clientY + 'px';
+});
+
+// ===== SIDEBAR =====
+function openSidebar() {
+document.getElementById('sidebar').classList.add('open');
+document.getElementById('sidebarOverlay').classList.add('visible');
+playSound('click');
+}
+
+function closeSidebar() {
+document.getElementById('sidebar').classList.remove('open');
+document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+
+// ===== PAGE SWITCHING =====
+function switchPage(page) {
+document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+document.getElementById('page-' + page).classList.add('active');
+document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+event.currentTarget.classList.add('active');
+closeSidebar();
+window.scrollTo({ top: 0, behavior: 'smooth' });
+playSound('click');
+}
+
+// ===== TAB SYSTEM =====
+function switchTab(btn, tabId) {
+const parent = btn.closest('.card') || btn.closest('.page-section');
+parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+document.getElementById('tab-' + tabId).classList.add('active');
+playSound('click');
+}
+
+// ===== TEMPLATE FILTER =====
+function filterTemplates(btn, category) {
+btn.closest('.tab-header').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+document.querySelectorAll('.template-card').forEach(card => {
+if (category === 'all' || card.dataset.category === category) {
+card.style.display = 'block';
+} else {
+card.style.display = 'none';
+}
+});
+}
+
+function applyTemplate(name) {
+showToast(`Template "${name}" applied!`, 'success');
+switchPage('builder');
+document.querySelector('[onclick="switchPage(\'builder\')"]').classList.add('active');
+}
+
+// ===== SERVER SELECTION =====
+function selectServer(el) {
+document.querySelectorAll('.server-card').forEach(s => s.classList.remove('active'));
+el.classList.add('active');
+playSound('click');
+}
+
+// ===== IMAGE PREVIEW =====
+function previewImage(input, previewId) {
+const file = input.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = (e) => {
+const preview = document.getElementById(previewId);
+preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+};
+reader.readAsDataURL(file);
+showToast('Image uploaded!', 'success');
+}
+}
+
+// ===== FILE HANDLING =====
+function handleDrop(e, type) {
+e.preventDefault();
+e.currentTarget.classList.remove('dragging');
+const files = e.dataTransfer.files;
+if (files.length) {
+showToast(`File "${files[0].name}" uploaded!`, 'success');
+}
+}
+
+function handleFileSelect(input, type) {
+if (input.files.length) {
+const name = input.files[0].name;
+document.getElementById(type + 'FileName').textContent = '📎 ' + name;
+showToast(`File "${name}" selected!`, 'success');
+}
+}
+
+// ===== URL PREVIEW =====
+function previewUrl() {
+const url = document.getElementById('websiteUrl').value;
+if (url) {
+const screen = document.getElementById('previewScreen');
+screen.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin"></iframe>`;
+showToast('Preview loaded!', 'info');
+} else {
+showToast('Please enter a URL first', 'warning');
+}
+}
+
+function rotatePreview() {
+const phone = document.querySelector('.phone-preview');
+if (phone.style.transform === 'rotate(90deg)') {
+phone.style.transform = '';
+phone.style.width = '';
+phone.style.height = '';
+} else {
+phone.style.transform = 'rotate(90deg)';
+}
+}
+
+function refreshPreview() {
+const iframe = document.querySelector('.phone-screen iframe');
+if (iframe) iframe.src = iframe.src;
+}
+
+// ===== BUILD SYSTEM =====
+function startBuild() {
+const appName = document.getElementById('appName').value || 'MyApp';
+const url = document.getElementById('websiteUrl').value;
+
+if (!url && !document.getElementById('htmlFileName').textContent && !document.getElementById('zipFileName').textContent) {
+showToast('Please enter a URL or upload a file first!', 'error');
+return;
+}
+
+playSound('build');
+const btn = document.getElementById('buildBtn');
+btn.disabled = true;
+btn.innerHTML = '⏳ Building...';
+
+const progress = document.getElementById('buildProgress');
+progress.classList.add('visible');
+
+const console_ = document.getElementById('buildConsole');
+console_.classList.add('visible');
+console_.innerHTML = '';
+
+const stages = [
+{ tag: 'system', msg: 'Initializing Nexus Engine...', pct: 5 },
+{ tag: 'system', msg: 'Loading configuration...', pct: 10 },
+{ tag: 'system', msg: 'Checking server status...', pct: 15 },
+{ tag: 'webview', msg: 'Setting up WebView engine...', pct: 20 },
+{ tag: 'webview', msg: `Injecting URL: ${url || 'local file'}`, pct: 30 },
+{ tag: 'webview', msg: 'Configuring permissions...', pct: 35 },
+{ tag: 'assets', msg: 'Processing app icon...', pct: 40 },
+{ tag: 'assets', msg: 'Generating splash screen...', pct: 48 },
+{ tag: 'assets', msg: 'Optimizing assets...', pct: 55 },
+{ tag: 'assets', msg: 'Compressing resources...', pct: 60 },
+{ tag: 'build', msg: 'Compiling Android project...', pct: 65 },
+{ tag: 'build', msg: 'Generating APK package...', pct: 72 },
+{ tag: 'build', msg: 'Applying security layers...', pct: 78 },
+{ tag: 'build', msg: 'Running code optimizer...', pct: 83 },
+{ tag: 'sign', msg: 'Signing APK with debug key...', pct: 88 },
+{ tag: 'sign', msg: 'Verifying signature...', pct: 92 },
+{ tag: 'build', msg: 'Final optimization pass...', pct: 96 },
+{ tag: 'success', msg: `✅ ${appName}.apk Successfully Built!`, pct: 100 }
+];
+
+stages.forEach((stage, i) => {
+setTimeout(() => {
+addConsoleLine(stage.tag, stage.msg);
+document.getElementById('progressFill').style.width = stage.pct + '%';
+document.getElementById('buildPercent').textContent = stage.pct + '%';
+document.getElementById('buildStage').textContent = stage.msg;
+
+if (i === stages.length - 1) {
+setTimeout(() => {
+document.getElementById('downloadCard').classList.add('visible');
+btn.disabled = false;
+btn.innerHTML = '⚡ Build APK Now';
+showToast('APK built successfully!', 'success');
+playSound('success');
+incrementBuildCount();
+}, 500);
+}
+}, i * 400 + Math.random() * 200);
+});
+}
+
+function turboBuild() {
+document.getElementById('websiteUrl').value = document.getElementById('websiteUrl').value || document.getElementById('aiUrl').value || '';
+startBuild();
+}
+
+function addConsoleLine(tag, msg) {
+const console_ = document.getElementById('buildConsole');
+const line = document.createElement('div');
+line.className = 'console-line';
+line.innerHTML = `<span class="tag ${tag}">[ ${tag.toUpperCase()} ]</span><span class="msg">${msg}</span>`;
+console_.appendChild(line);
+console_.scrollTop = console_.scrollHeight;
+}
+
+function resetBuild() {
+document.getElementById('buildProgress').classList.remove('visible');
+document.getElementById('buildConsole').classList.remove('visible');
+document.getElementById('buildConsole').innerHTML = '';
+document.getElementById('downloadCard').classList.remove('visible');
+document.getElementById('progressFill').style.width = '0%';
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function downloadAPK() {
+showToast('Downloading APK...', 'info');
+playSound('click');
+// Simulate download
+setTimeout(() => showToast('Download complete!', 'success'), 2000);
+}
+
+function downloadAAB() {
+showToast('Downloading AAB...', 'info');
+}
+
+// ===== AI GENERATE =====
+function aiGenerate() {
+const url = document.getElementById('aiUrl').value;
+if (!url) {
+showToast('Please enter a URL', 'warning');
+return;
+}
+showToast('🧠 AI analyzing website...', 'info');
+playSound('click');
+
+setTimeout(() => {
+document.getElementById('appName').value = url.replace(/https?:\/\//, '').split('.')[0] || 'AIGenApp';
+document.getElementById('websiteUrl').value = url;
+document.getElementById('packageName').value = 'com.nexus.' + (url.replace(/https?:\/\//, '').split('.')[0] || 'app');
+showToast('✅ AI settings applied!', 'success');
+}, 2000);
+}
+
+// ===== SHARE APK =====
+function shareAPK(type) {
+switch(type) {
+case 'qr':
+const qr = document.getElementById('qrContainer');
+qr.style.display = qr.style.display === 'none' ? 'block' : 'none';
+break;
+case 'wa':
+showToast('Opening WhatsApp...', 'info');
+break;
+case 'tg':
+showToast('Opening Telegram...', 'info');
+break;
+case 'link':
+showToast('Link copied to clipboard!', 'success');
+break;
+}
+}
+
+// ===== EXPIRATION =====
+function toggleExpiration() {
+const settings = document.getElementById('expirationSettings');
+settings.style.display = document.getElementById('expirationToggle').checked ? 'block' : 'none';
+if (document.getElementById('expirationToggle').checked) {
+updateCountdown();
+}
+}
+
+let countdownInterval;
+function updateCountdown() {
+const period = document.getElementById('expirationPeriod').value;
+document.getElementById('customDateTime').style.display = period === 'custom' ? 'block' : 'none';
+
+if (period === 'custom') return;
+
+let totalSeconds = parseInt(period);
+clearInterval(countdownInterval);
+
+countdownInterval = setInterval(() => {
+if (totalSeconds <= 0) {
+clearInterval(countdownInterval);
+return;
+}
+totalSeconds--;
+const d = Math.floor(totalSeconds / 86400);
+const h = Math.floor((totalSeconds % 86400) / 3600);
+const m = Math.floor((totalSeconds % 3600) / 60);
+const s = totalSeconds % 60;
+document.getElementById('cd-days').textContent = String(d).padStart(2, '0');
+document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+document.getElementById('cd-mins').textContent = String(m).padStart(2, '0');
+document.getElementById('cd-secs').textContent = String(s).padStart(2, '0');
+}, 1000);
+
+// Set initial
+const d = Math.floor(totalSeconds / 86400);
+const h = Math.floor((totalSeconds % 86400) / 3600);
+const m = Math.floor((totalSeconds % 3600) / 60);
+const s = totalSeconds % 60;
+document.getElementById('cd-days').textContent = String(d).padStart(2, '0');
+document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+document.getElementById('cd-mins').textContent = String(m).padStart(2, '0');
+document.getElementById('cd-secs').textContent = String(s).padStart(2, '0');
+}
+
+// ===== LICENSE =====
+function generateLicense() {
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+let key = 'NX-';
+for (let i = 0; i < 4; i++) {
+for (let j = 0; j < 4; j++) {
+key += chars[Math.floor(Math.random() * chars.length)];
+}
+if (i < 3) key += '-';
+}
+document.getElementById('licenseKey').textContent = '🔑 ' + key;
+showToast('License key generated!', 'success');
+}
+
+// ===== PLUGIN INSTALL =====
+function installPlugin(btn) {
+if (btn.classList.contains('installed')) {
+btn.classList.remove('installed');
+btn.textContent = '➕ Install';
+showToast('Plugin removed', 'info');
+} else {
+btn.classList.add('installed');
+btn.textContent = '✅ Installed';
+showToast('Plugin installed!', 'success');
+}
+playSound('click');
+}
+
+// ===== SCANNER =====
+function scanAPK() {
+showToast('Scanning APK...', 'info');
+setTimeout(() => {
+document.getElementById('scanResults').style.display = 'block';
+showToast('Scan complete!', 'success');
+}, 1500);
+}
+
+// ===== CLONER =====
+function cloneAPK() {
+showToast('Cloning APK...', 'info');
+setTimeout(() => showToast('APK cloned successfully!', 'success'), 2000);
+}
+
+// ===== OPTIMIZER =====
+function runOptimizer() {
+showToast('Running optimizer...', 'info');
+setTimeout(() => showToast('Optimization complete! Score: 96/100', 'success'), 2000);
+}
+
+// ===== DESKTOP EXPORT =====
+function exportDesktop(platform) {
+showToast(`Preparing ${platform} export...`, 'info');
+setTimeout(() => showToast(`${platform} build ready!`, 'success'), 2000);
+}
+
+// ===== LANGUAGE =====
+function selectLang(btn) {
+document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+showToast('Language changed!', 'success');
+}
+
+// ===== GAMIFICATION =====
+function claimReward() {
+showToast('🎁 +500 XP claimed!', 'success');
+playSound('success');
+}
+
+function incrementBuildCount() {
+const el = document.getElementById('totalBuilds');
+el.textContent = parseInt(el.textContent) + 1;
+}
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(message, type = 'info') {
+const container = document.getElementById('toastContainer');
+const toast = document.createElement('div');
+toast.className = `toast ${type}`;
+
+const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+toast.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
+
+container.appendChild(toast);
+
+setTimeout(() => {
+toast.classList.add('removing');
+setTimeout(() => toast.remove(), 300);
+}, 3000);
+}
+
+// ===== SOUND SYSTEM =====
+let soundEnabled = true;
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+function toggleSound() {
+soundEnabled = !soundEnabled;
+document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+}
+
+function playSound(type) {
+if (!soundEnabled) return;
+try {
+const osc = audioContext.createOscillator();
+const gain = audioContext.createGain();
+osc.connect(gain);
+gain.connect(audioContext.destination);
+gain.gain.value = 0.05;
+
+switch(type) {
+case 'click':
+osc.frequency.value = 800;
+osc.type = 'sine';
+gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+osc.start();
+osc.stop(audioContext.currentTime + 0.1);
+break;
+case 'success':
+osc.frequency.value = 523;
+osc.type = 'sine';
+gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+osc.start();
+osc.stop(audioContext.currentTime + 0.3);
+setTimeout(() => {
+const osc2 = audioContext.createOscillator();
+const gain2 = audioContext.createGain();
+osc2.connect(gain2);
+gain2.connect(audioContext.destination);
+gain2.gain.value = 0.05;
+osc2.frequency.value = 659;
+osc2.type = 'sine';
+gain2.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+osc2.start();
+osc2.stop(audioContext.currentTime + 0.3);
+}, 150);
+break;
+case 'build':
+osc.frequency.value = 200;
+osc.type = 'sawtooth';
+gain.gain.value = 0.02;
+gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+osc.start();
+osc.stop(audioContext.currentTime + 0.5);
+break;
+case 'startup':
+osc.frequency.value = 300;
+osc.type = 'sine';
+gain.gain.value = 0.03;
+osc.frequency.linearRampToValueAtTime(600, audioContext.currentTime + 0.5);
+gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.6);
+osc.start();
+osc.stop(audioContext.currentTime + 0.6);
+break;
+default:
+osc.frequency.value = 600;
+osc.type = 'sine';
+gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+osc.start();
+osc.stop(audioContext.currentTime + 0.1);
+}
+} catch(e) {}
+}
+
+// ===== LIVE ACTIVITY SIMULATION =====
+const activities = [
+'built <strong>ShopApp</strong> successfully',
+'started building <strong>BlogPro</strong>',
+'downloaded APK',
+'built <strong>GameHub</strong> successfully',
+'cloned APK',
+'applied template <strong>EduLearn</strong>',
+'started building <strong>Portfolio</strong>',
+'built <strong>StreamApp</strong> successfully',
+'installed Firebase Plugin',
+'generated license key'
+];
+
+setInterval(() => {
+const feed = document.getElementById('activityFeed');
+if (!feed) return;
+const item = document.createElement('div');
+item.className = 'activity-item';
+const userId = Math.floor(Math.random() * 9000) + 1000;
+const activity = activities[Math.floor(Math.random() * activities.length)];
+const status = Math.random() > 0.3 ? '🟢' : '🔵';
+item.innerHTML = `<span class="time">now</span><span class="activity-text">${status} User#${userId} ${activity}</span>`;
+item.style.animation = 'fadeIn 0.3s ease';
+feed.insertBefore(item, feed.firstChild);
+if (feed.children.length > 15) feed.removeChild(feed.lastChild);
+
+// Update counters
+const onlineEl = document.getElementById('usersOnline');
+const buildingEl = document.getElementById('buildingNow');
+if (onlineEl) onlineEl.textContent = (1200 + Math.floor(Math.random() * 100)).toLocaleString();
+if (buildingEl) buildingEl.textContent = 30 + Math.floor(Math.random() * 15);
+}, 5000);
+
+// ===== HOVER SOUNDS =====
+document.addEventListener('DOMContentLoaded', () => {
+document.querySelectorAll('.btn, .sidebar-item, .server-card, .template-card, .tab-btn').forEach(el => {
+el.addEventListener('mouseenter', () => {
+if (soundEnabled) {
+try {
+const osc = audioContext.createOscillator();
+const gain = audioContext.createGain();
+osc.connect(gain);
+gain.connect(audioContext.destination);
+gain.gain.value = 0.01;
+osc.frequency.value = 1200;
+osc.type = 'sine';
+gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+osc.start();
+osc.stop(audioContext.currentTime + 0.05);
+} catch(e) {}
+}
+});
+});
+});
+
+// ===== KEYBOARD SHORTCUT =====
+document.addEventListener('keydown', (e) => {
+if (e.ctrlKey && e.key === 'b') {
+e.preventDefault();
+startBuild();
+}
+if (e.key === 'Escape') {
+closeSidebar();
+}
+});
+
+// Resume AudioContext on user interaction
+document.addEventListener('click', () => {
+if (audioContext.state === 'suspended') {
+audioContext.resume();
+}
+}, { once: true });
+</script>
+</body>
+</html>
